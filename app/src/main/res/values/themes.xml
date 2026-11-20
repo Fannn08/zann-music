@@ -1,0 +1,17 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.ComposeEmptyActivity" parent="Theme.Vyora.Light" />
+
+    <style name="Theme.Vyora.Light" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/vyora_window_light</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.Vyora.Dark" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/vyora_window</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
