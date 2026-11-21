@@ -39,6 +39,7 @@ private const val INTRO_MAX_MS = 6_000L
  * intro can never keep the app from opening.
  */
 @Composable
+@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 fun IntroVideoOverlay(onFinished: () -> Unit) {
     val context = LocalContext.current
     var finishing by remember { mutableStateOf(false) }
