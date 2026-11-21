@@ -120,7 +120,7 @@ di [Panduan Developer](docs/DEVELOPMENT.md).
 
 ZANN MUSIC dirilis di bawah lisensi [GPL-3.0](LICENSE). Daftar komponen pihak ketiga ada di [NOTICE.md](NOTICE.md).
 
-ZANN MUSIC adalah turunan dari [VYORA](https://github.com/Yenalie/VYORA) karya Yenalie, yang juga berlisensi GPL-3.0.
+ZANN MUSIC adalah karya turunan dari proyek open source berlisensi GPL-3.0. Atribusi lengkap ada di [NOTICE.md](NOTICE.md).
 
 ## Disclaimer
 

@@ -15,6 +15,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "VYORA"
+rootProject.name = "ZANN-MUSIC"
 
 include(":app")

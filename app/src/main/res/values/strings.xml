@@ -479,7 +479,7 @@
     <string name="import_empty">This playlist is empty.</string>
     <string name="import_network">Could not reach Spotify or YouTube Music. Check your connection.</string>
     <string name="licenses_title">Open-source licenses</string>
-    <string name="licenses_vyora_footer">VYORA is free software: you can redistribute and modify it under the GPL-3.0. It comes with no warranty.</string>
+    <string name="licenses_vyora_footer">ZANN MUSIC is free software: you can redistribute and modify it under the GPL-3.0. It comes with no warranty.</string>
     <string name="licenses_notice">Third-party notices</string>
     <string name="licenses_third_party">Built with</string>
     <string name="playback_speed">Speed</string>

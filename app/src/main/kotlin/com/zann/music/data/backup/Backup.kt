@@ -68,8 +68,8 @@ object Backup {
 
     fun decode(raw: String): Contents {
         val o = JSONObject(raw)
-        require(o.optString("app") == "VYORA") { "Not a VYORA backup" }
-        require(o.optInt("format", 0) in 1..FORMAT) { "Backup from a newer VYORA" }
+        require(o.optString("app") == "VYORA") { "Not a ZANN MUSIC backup" }
+        require(o.optInt("format", 0) in 1..FORMAT) { "Backup from a newer ZANN MUSIC" }
         val settings = buildMap<String, Any?> {
             val arr = o.optJSONArray("settings") ?: JSONArray()
             for (i in 0 until arr.length()) {

@@ -29,7 +29,7 @@ object MusicServer {
     const val SONG_PREFIX = "srv:"
     const val ALBUM_PREFIX = "srvalbum:"
     private const val API_VERSION = "1.16.1"
-    private const val CLIENT = "VYORA"
+    private const val CLIENT = "ZANN-MUSIC"
 
     private const val K_URL = "server_url"
     private const val K_USER = "server_user"

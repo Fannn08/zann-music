@@ -109,7 +109,7 @@ class IntegrationsTest {
         val d = DiscordPresence.identify("Bearer abc").getJSONObject("d")
         assertEquals("Bearer abc", d.getString("token"))
         assertEquals((1 shl 4) or (1 shl 5) or (1 shl 12) or (1 shl 16), d.getInt("capabilities"))
-        assertEquals("VYORA", d.getJSONObject("properties").getString("browser"))
+        assertEquals("ZANN MUSIC", d.getJSONObject("properties").getString("browser"))
     }
 
     @Test fun spotifyTotpMatchesRfc6238() {

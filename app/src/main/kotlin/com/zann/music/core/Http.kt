@@ -25,5 +25,5 @@ object Http {
         .writeTimeout(writeSec, TimeUnit.SECONDS)
         .build()
 
-    const val USER_AGENT = "VYORA (Android; +https://github.com/Yenalie/VYORA)"
+    const val USER_AGENT = "ZANN MUSIC (Android; +https://github.com/Fannn08/zann-music)"
 }

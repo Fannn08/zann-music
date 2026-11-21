@@ -239,8 +239,8 @@ object Scrobbler {
                 album?.let { put("release_name", it) }
                 put("additional_info", JSONObject().apply {
                     if (durationSec > 0) put("duration_ms", durationSec * 1000)
-                    put("media_player", "VYORA")
-                    put("submission_client", "VYORA")
+                    put("media_player", "ZANN MUSIC")
+                    put("submission_client", "ZANN MUSIC")
                     put("submission_client_version", BuildConfig.VERSION_NAME)
                     put("music_service", "youtube.com")
                 })

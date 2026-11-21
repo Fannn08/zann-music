@@ -1,3 +1,9 @@
+# Modification notice
+
+ZANN MUSIC is a modified version of the open-source project named below (GPL-3.0). Modified in November 2026: app name, launcher/splash icons, package name, contact links, and the automatic update check was disabled. All original copyright and license notices are kept as-is.
+
+---
+
 # Third-party notices
 
 VYORA is distributed under GPL-3.0 (see `LICENSE`); its source must be made available to anyone you

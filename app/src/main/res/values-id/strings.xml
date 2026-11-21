@@ -474,7 +474,7 @@
     <string name="import_empty">Playlist ini kosong.</string>
     <string name="import_network">Tidak dapat menghubungi Spotify atau YouTube Music. Periksa koneksimu.</string>
     <string name="licenses_title">Lisensi open source</string>
-    <string name="licenses_vyora_footer">VYORA adalah perangkat lunak bebas: kamu boleh membagikan dan mengubahnya di bawah GPL-3.0. Tanpa jaminan apa pun.</string>
+    <string name="licenses_vyora_footer">ZANN MUSIC adalah perangkat lunak bebas: kamu boleh membagikan dan mengubahnya di bawah GPL-3.0. Tanpa jaminan apa pun.</string>
     <string name="licenses_notice">Pemberitahuan pihak ketiga</string>
     <string name="licenses_third_party">Dibangun dengan</string>
     <string name="playback_speed">Kecepatan</string>

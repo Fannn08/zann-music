@@ -67,9 +67,9 @@ class FeaturesTest {
     @Test fun discordActivity() {
         val a = DiscordPresence.activity(PresenceTrack("X", "", 1_000L, 61_000L))
         assertEquals(2, a.getInt("type"))
-        assertEquals("VYORA", a.getString("name"))
+        assertEquals("ZANN MUSIC", a.getString("name"))
         assertEquals(2, a.getString("details").length)
-        assertEquals("VYORA", a.getString("state"))
+        assertEquals("ZANN MUSIC", a.getString("state"))
         assertEquals(61_000L, a.getJSONObject("timestamps").getLong("end"))
         val noEnd = DiscordPresence.activity(PresenceTrack("Judul", "Artis", 5_000L, 0L))
         assertFalse(noEnd.getJSONObject("timestamps").has("end"))

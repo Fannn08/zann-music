@@ -51,7 +51,7 @@ object DiscordPresence {
     private const val API = "https://discord.com/api/v10"
     private const val SEND_DELAY_MS = 1_200L
     private const val IDLE_DISCONNECT_MS = 10 * 60_000L
-    private const val GET_VYORA_URL = "https://github.com/Yenalie/VYORA"
+    private const val GET_VYORA_URL = "https://github.com/Fannn08/zann-music"
     private val NON_RESUMABLE = setOf(4004, 4010, 4011, 4012, 4013, 4014)
 
     private val CAPABILITIES = (1 shl 4) or (1 shl 5) or (1 shl 12) or (1 shl 16)
@@ -408,9 +408,9 @@ object DiscordPresence {
                     "properties",
                     JSONObject()
                         .put("os", "Android")
-                        .put("browser", "VYORA")
+                        .put("browser", "ZANN MUSIC")
                         .put("device", "Android")
-                        .put("browser_user_agent", "VYORA")
+                        .put("browser_user_agent", "ZANN MUSIC")
                         .put("browser_version", "1.0")
                         .put("client_version", "1.0")
                         .put("client_build_number", 1)

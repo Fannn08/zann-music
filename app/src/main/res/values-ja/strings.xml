@@ -474,7 +474,7 @@
     <string name="import_empty">このプレイリストは空です。</string>
     <string name="import_network">Spotify または YouTube Music に接続できません。接続を確認してください。</string>
     <string name="licenses_title">オープンソースライセンス</string>
-    <string name="licenses_vyora_footer">VYORA はフリーソフトウェアです。GPL-3.0 の下で再配布・改変できます。無保証です。</string>
+    <string name="licenses_vyora_footer">ZANN MUSIC はフリーソフトウェアです。GPL-3.0 の下で再配布・改変できます。無保証です。</string>
     <string name="licenses_notice">サードパーティの表示</string>
     <string name="licenses_third_party">使用しているもの</string>
     <string name="playback_speed">再生速度</string>
