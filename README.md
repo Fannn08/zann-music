@@ -1,15 +1,13 @@
 <div align="center">
 
-<img src="playstore-icon.png" width="120" alt="VYORA" />
+<img src="playstore-icon.png" width="120" alt="ZANN MUSIC" />
 
-# VYORA
+# ZANN MUSIC
 
 **Pemutar musik Android yang bersih, cepat, dan cantik, dengan desain bergaya iOS 26 Liquid Glass.**
 
 Dengarkan jutaan lagu dari katalog YouTube Music, simpan favoritmu, dan sinkronkan dengan akun YouTube Music kamu.
 
-[![Download APK](https://img.shields.io/github/v/release/Yenalie/VYORA?label=Download%20APK&style=for-the-badge&logo=android&logoColor=white&color=FA2D48)](https://github.com/Yenalie/VYORA/releases/latest)
-[![Release](https://img.shields.io/github/v/release/Yenalie/VYORA?style=for-the-badge&color=0A84FF)](https://github.com/Yenalie/VYORA/releases)
 [![License](https://img.shields.io/badge/License-GPL--3.0-30D158?style=for-the-badge)](LICENSE)
 
 ![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?logo=android&logoColor=white)
@@ -80,28 +78,27 @@ Dengarkan jutaan lagu dari katalog YouTube Music, simpan favoritmu, dan sinkronk
 - Sesi akun disimpan terenkripsi di perangkat, dan cookie login dihapus dari WebView setelah masuk
 
 ### Lainnya
-- **Pembaruan otomatis:** VYORA memberi tahu lewat notifikasi saat ada versi baru, lalu mengunduh dan memasangnya langsung dari aplikasi
 - **Discord Rich Presence:** tampilkan lagu yang sedang diputar di profil Discord
 - Lagu yang pernah diputar disimpan di cache, jadi lebih hemat kuota
 - Tersedia dalam 5 bahasa: Indonesia, Inggris, Melayu, Spanyol, dan Jepang
 
 ## Download
 
-Unduh APK terbaru di bagian **Assets** pada halaman [Releases](https://github.com/Yenalie/VYORA/releases/latest).
+Unduh APK dari tab **Actions** di repo ini (artifact `ZANN-MUSIC-debug-apk`) atau dari halaman
+[Releases](https://github.com/Fannn08/zann-music/releases) bila sudah tersedia.
 
 **Kebutuhan:** Android 10 atau lebih baru. Efek Liquid Glass penuh butuh Android 12 ke atas.
 Di perangkat yang lebih lama, tampilannya otomatis menyesuaikan.
 
-Setelah terpasang, versi berikutnya bisa langsung diperbarui dari **Pengaturan > Pembaruan**.
-Saat pertama kali memperbarui, Android akan meminta izin "Instal aplikasi tidak dikenal" untuk VYORA.
+Saat pertama kali memasang, Android akan meminta izin "Instal aplikasi tidak dikenal".
 
 > Build ini masih tahap uji coba dan belum tersedia di Play Store.
 
 ## Build dari source
 
 ```bash
-git clone https://github.com/Yenalie/VYORA.git
-cd VYORA
+git clone https://github.com/Fannn08/zann-music.git
+cd zann-music
 ./gradlew assembleDebug
 ```
 
@@ -121,9 +118,11 @@ di [Panduan Developer](docs/DEVELOPMENT.md).
 
 ## Lisensi
 
-VYORA dirilis di bawah lisensi [GPL-3.0](LICENSE). Daftar komponen pihak ketiga ada di [NOTICE.md](NOTICE.md).
+ZANN MUSIC dirilis di bawah lisensi [GPL-3.0](LICENSE). Daftar komponen pihak ketiga ada di [NOTICE.md](NOTICE.md).
+
+ZANN MUSIC adalah turunan dari [VYORA](https://github.com/Yenalie/VYORA) karya Yenalie, yang juga berlisensi GPL-3.0.
 
 ## Disclaimer
 
-VYORA adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh
+ZANN MUSIC adalah proyek independen dan tidak berafiliasi dengan, didukung, atau disponsori oleh
 YouTube maupun Google. Semua merek dagang adalah milik pemiliknya masing-masing.
