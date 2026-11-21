@@ -16,6 +16,7 @@ import com.zann.music.data.update.UpdateManager
 class VyoraApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
+        com.zann.music.core.CrashLog.install(this)
         LibraryManager.init(this)
         SearchHistory.init(this)
         SyncEngine.init(this)
