@@ -79,7 +79,7 @@ jobs:
             echo "::error::APK signed with $ACTUAL, expected the pinned release key $EXPECTED"
             exit 1
           fi
-          OUT="VYORA-${{ steps.version.outputs.name }}-release.apk"
+          OUT="ZANN-MUSIC-${{ steps.version.outputs.name }}-release.apk"
           cp "$SRC" "$OUT"
           sha256sum "$OUT" > "$OUT.sha256"
           echo "APK=$OUT" >> "$GITHUB_ENV"
@@ -89,13 +89,13 @@ jobs:
           NAME=${{ steps.version.outputs.name }}
           SECTION=$(awk -v v="## $NAME" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md | sed '/./,$!d')
           {
-            echo "## VYORA $NAME"
+            echo "## ZANN MUSIC $NAME"
             echo
             echo "### Yang baru"
             if [ -n "$SECTION" ]; then echo "$SECTION"; else echo "- Perbaikan dan peningkatan"; fi
             echo
             echo "### Instalasi"
-            echo "Unduh **$APK** di bagian Assets di bawah, atau buka VYORA > Pengaturan > Pembaruan. Butuh Android 10 atau lebih baru, dan bisa langsung dipasang di atas versi sebelumnya."
+            echo "Unduh **$APK** di bagian Assets di bawah, atau buka ZANN MUSIC > Pengaturan > Pembaruan. Butuh Android 10 atau lebih baru, dan bisa langsung dipasang di atas versi sebelumnya."
             echo
             echo "> Build uji coba, belum tersedia di Play Store."
           } > notes.md
@@ -110,7 +110,7 @@ jobs:
             gh release edit "$TAG" --notes-file notes.md --latest --repo "$GITHUB_REPOSITORY"
           else
             gh release create "$TAG" "$APK" "$APK.sha256" \
-              --title "VYORA ${{ steps.version.outputs.name }}" \
+              --title "ZANN MUSIC ${{ steps.version.outputs.name }}" \
               --notes-file notes.md --latest --repo "$GITHUB_REPOSITORY"
           fi
 

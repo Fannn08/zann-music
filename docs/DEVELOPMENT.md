@@ -31,7 +31,7 @@ Rilis dibuat oleh GitHub Actions (`.github/workflows/release.yml`):
 3. Commit, lalu buat dan push tag: `git tag v1.9.21 && git push origin v1.9.21`.
 
 Workflow mengecek tag cocok dengan `versionName`, menjalankan unit test, build APK yang
-ditandatangani, lalu membuat GitHub Release berisi `VYORA-<versi>-release.apk`, file `.sha256`,
+ditandatangani, lalu membuat GitHub Release berisi `ZANN-MUSIC-<versi>-release.apk`, file `.sha256`,
 dan catatan dari CHANGELOG. Kunci diambil dari secrets repo `VYORA_KEYSTORE_BASE64`,
 `VYORA_KEYSTORE_PASSWORD`, `VYORA_KEY_ALIAS`, `VYORA_KEY_PASSWORD`.
 
@@ -115,7 +115,7 @@ Skema Room tiap versi diekspor ke `app/schemas/`. Langkah mengubah skema:
 3. Build sekali supaya KSP mengekspor `app/schemas/.../<N+1>.json`, lalu commit file itu.
 4. Tambah kasus di `MigrationTest` (Robolectric + `MigrationTestHelper`).
 
-Jangan pakai destructive fallback, ini library pengguna. Data dari VYORA 1.x
+Jangan pakai destructive fallback, ini library pengguna. Data dari ZANN MUSIC 1.x
 (DataStore, SharedPreferences, `queue.json`) dipindah otomatis sekali saat pertama dibuka.
 
 ## Akun YouTube Music
@@ -136,5 +136,5 @@ terakhir lebih dari 30 menit lalu.
   server HTTP lokal ber-token di jaringan Wi-Fi yang sama, karena URL stream YouTube terikat ke perangkat.
 - Discord Rich Presence (`data/discord/`) terhubung ke gateway Discord dengan sesi akun pengguna dan
   mengirim aktivitas tipe Listening. Ini bukan API resmi, jadi tampil hanya teks tanpa artwork.
-- Kartu lirik digambar di `ui/player/LyricsCard.kt` (1080x1920) lalu disimpan ke `Pictures/VYORA`
+- Kartu lirik digambar di `ui/player/LyricsCard.kt` (1080x1920) lalu disimpan ke `Pictures/ZANN MUSIC`
   atau dibagikan lewat FileProvider `${applicationId}.files`.
