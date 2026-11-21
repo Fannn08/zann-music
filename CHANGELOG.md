@@ -1,5 +1,8 @@
 # Changelog
 ## 1.9.22
+- Fitur baru Streak dan Top Listener (data lokal, tanpa server)
+
+## 1.9.22
 - Fitur baru Streak: api harian, target menit, minggu ini, dan heatmap 5 minggu
 - Fitur baru Top Listener: waktu mendengarkan, artis teratas, dan lagu terbanyak (7 hari, 30 hari, semua)
 - Data statistik disimpan lokal di HP, tanpa server

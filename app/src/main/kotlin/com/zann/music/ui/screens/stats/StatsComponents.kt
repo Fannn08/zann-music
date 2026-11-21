@@ -2,6 +2,8 @@ package com.zann.music.ui.screens.stats
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -147,8 +150,8 @@ internal fun Pill(text: String, selected: Boolean, onClick: () -> Unit) {
 internal fun Dp.toPxF(): Float = with(androidx.compose.ui.platform.LocalDensity.current) { this@toPxF.toPx() }
 
 internal fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier = composed {
-    androidx.compose.foundation.clickable(
-        interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+    this.clickable(
+        interactionSource = remember { MutableInteractionSource() },
         indication = null,
         onClick = onClick,
     )
