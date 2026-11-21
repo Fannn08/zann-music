@@ -1,5 +1,5 @@
 # Changelog
-## 1.9.9
+## 1.9.21
 - Pembaruan dari aplikasi aktif lagi: Pengaturan, Pembaruan membaca rilis terbaru di GitHub Fannn08/zann-music
 - Latar beranda kustom: pilih gambar atau video (diputar berulang tanpa suara, maks 100 MB) sendiri di Pengaturan, Tampilan, Latar beranda. Bisa dihidupkan/dimatikan, diganti, dihapus, dan tingkat gelapnya diatur
 - Pengaturan baru "Putar di latar belakang" (Pengaturan, Pemutaran): matikan agar musik otomatis dijeda saat aplikasi ditutup atau layar dikunci
@@ -9,13 +9,9 @@
 - Bar kategori hasil Search (Hasil Teratas, Lagu, Artis, Album, dan lainnya) kini bergulir sampai ke tepi layar dengan pudar halus, tidak lagi terpotong tegak di pinggir
 - Teks kartu lirik dirapikan: ketebalan semibold, jarak baris lebih rapat dalam satu lirik dan lebih lega antar lirik, serta pemenggalan baris yang seimbang
 - Library kembali ke tata letak Apple Music
-
-## 1.9.8
 - Home tidak lagi force close saat dua station memakai lagu yang sama (misalnya lagu kolaborasi yang muncul di shelf dua artis); tiap station kini punya lagu awal sendiri
 - Semua daftar (Home, Search, Library, playlist, album, artis, server musik, Recap, musik lokal, feed Spotify) kini memakai key unik, jadi lagu atau video yang muncul dua kali tidak lagi membuat aplikasi crash
 - Shelf artis, mix, dan album di Home dibersihkan dari duplikat
-
-## 1.9.7
 - Kartu lirik didesain ulang menjadi lempeng liquid glass tebal: tepinya membiaskan background dengan fringe warna halus, rim berkilau dari kiri atas, bayangan lembut, header artwork, judul, dan artis, ikon waveform, serta footer V Y O R A dengan progress dan waktu lagu
 - Background kartu lirik bisa diganti: artwork, foto sendiri dari galeri, warna, atau gelap; refraksi kaca dan tingkat redupnya menyesuaikan otomatis dengan background yang dipilih
 - Home kini menampilkan feed Spotify (Trending songs, Popular artists, albums, radio, charts); saat login Spotify, ada grid akses cepat Liked Songs dan playlist kamu; lagu diputar lewat YouTube Music, album dan playlist dibuka langsung
@@ -23,8 +19,6 @@
 - Query Spotify memperbarui hash-nya sendiri dari web player saat Spotify mengubahnya, sehingga playlist dan Liked Songs tetap bisa dimuat
 - Library ditata ulang seperti Spotify: filter Playlists, Artists, Albums, Downloaded; urutan Recents atau abjad; tampilan list atau grid; Liked Songs, Downloads, dan Recently Played berupa tile gradien yang di-pin; playlist memakai cover mozaik 2x2, artis berbentuk lingkaran, dan artwork memiliki bayangan serta kilap halus
 - Tombol buat playlist baru langsung dari header Library
-
-## 1.9.6
 - Full player tidak lagi force close di mode landscape; landscape kini memakai tata letak dua kolom (artwork, lirik, atau antrean di kiri, kontrol di kanan) dan player tetap terbuka saat layar diputar
 - Navigasi tab diperbaiki: Search selalu bisa dibuka lagi setelah kembali ke Home, tap tab yang sedang aktif kembali ke halaman awalnya, dan back di full player memakai gestur predictive back
 - Transisi mini player ke full player kini zoom seperti Apple Music iOS 26: seluruh player membesar dari mini player dan mengecil kembali ke sana
@@ -34,8 +28,6 @@
 - File AIFF dan AIFF-C (8 sampai 32-bit, float) kini bisa diputar dengan resolusi penuh; DSD (DSF dan DFF, DSD64 sampai DSD512) diputar sebagai PCM 88,2 atau 176,4 kHz, termasuk dari music server
 - Badge kualitas menampilkan AIFF dan DSD (misalnya DSD64) beserta resolusi aslinya
 - Teks pengaturan lirik kini lengkap dalam bahasa Melayu, Jepang, dan Spanyol
-
-## 1.9.21
 - Mini-card kualitas audio dan sleep timer kini transparan dengan outline tipis saja, tanpa warna fill gelap atau efek Liquid Glass; komentar penjelas terkait kartu dihapus
 
 ## 1.9.20

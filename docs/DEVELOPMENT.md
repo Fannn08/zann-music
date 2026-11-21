@@ -28,7 +28,7 @@ Rilis dibuat oleh GitHub Actions (`.github/workflows/release.yml`):
 
 1. Naikkan `versionCode` dan `versionName` di `app/build.gradle`.
 2. Tulis catatan versi di `CHANGELOG.md` dengan judul `## <versionName>`.
-3. Commit, lalu buat dan push tag: `git tag v1.5.0 && git push origin v1.5.0`.
+3. Commit, lalu buat dan push tag: `git tag v1.9.21 && git push origin v1.9.21`.
 
 Workflow mengecek tag cocok dengan `versionName`, menjalankan unit test, build APK yang
 ditandatangani, lalu membuat GitHub Release berisi `VYORA-<versi>-release.apk`, file `.sha256`,
