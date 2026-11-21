@@ -31,7 +31,7 @@ class SecurityTest {
     }
 
     @Test fun pinnedCertificateIsTheReleaseKey() {
-        assertEquals(setOf("75a7fd6458a9590b1b0c91d09c966f1ce202aae7f97dfe6021ad070d35442d9f"), UpdateSignature.RELEASE_CERT_SHA256)
+        assertEquals(setOf("3810a736dae145796833693e2e313b80c12f969393b1b8a4b1f797cb0427dbda"), UpdateSignature.RELEASE_CERT_SHA256)
     }
 
     @Test fun checksumFileIsParsedAndCompared() {

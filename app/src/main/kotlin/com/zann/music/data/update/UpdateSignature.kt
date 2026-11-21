@@ -14,7 +14,7 @@ import java.util.Locale
 object UpdateSignature {
     /** SHA-256 of the DER-encoded release signing certificate (`apksigner verify --print-certs`). */
     val RELEASE_CERT_SHA256: Set<String> = setOf(
-        "75a7fd6458a9590b1b0c91d09c966f1ce202aae7f97dfe6021ad070d35442d9f",
+        "3810a736dae145796833693e2e313b80c12f969393b1b8a4b1f797cb0427dbda",
     )
 
     enum class Verdict { OK, UNREADABLE, MISMATCH, NOT_PINNED }
