@@ -10,9 +10,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.zann.music.core.LocaleHelper
 import com.zann.music.data.settings.SettingsRepository
@@ -21,6 +27,7 @@ import com.zann.music.data.update.UpdateManager
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
 import com.zann.music.ui.LaunchReveal
+import com.zann.music.ui.IntroVideoOverlay
 import com.zann.music.ui.LaunchRevealBox
 import com.zann.music.ui.VyoraAppRoot
 import com.zann.music.ui.theme.VYORATheme
@@ -64,8 +71,13 @@ class MainActivity : ComponentActivity() {
                 )
             }
             VYORATheme(darkTheme = dark, accent = Color(settings.accent.argb)) {
-                LaunchRevealBox(animate = animateLaunch) {
-                    VyoraAppRoot(settings)
+                // The intro video only plays on a cold open, never on rotation or a theme change.
+                var showIntro by remember { mutableStateOf(animateLaunch) }
+                Box(Modifier.fillMaxSize()) {
+                    LaunchRevealBox(animate = animateLaunch) {
+                        VyoraAppRoot(settings)
+                    }
+                    if (showIntro) IntroVideoOverlay { showIntro = false }
                 }
             }
         }
