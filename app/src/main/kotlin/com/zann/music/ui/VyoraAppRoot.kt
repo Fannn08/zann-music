@@ -344,9 +344,18 @@ fun VyoraAppRoot(settings: AppSettings) {
                 .nestedScroll(backdropFreeze.connection)
                 .nestedScroll(navScrollConnection)
         ) {
+        val wallpaper = remember(settings.customBackground, settings.customBackgroundDim) {
+            if (settings.customBackground) com.zann.music.ui.design.HomeWallpaper.image(context) else null
+        }
+        val wallpaperVideo = remember(settings.customBackground, settings.customBackgroundDim) {
+            if (settings.customBackground) com.zann.music.ui.design.HomeWallpaper.video(context) else null
+        }
         AmbientBackground(
             artworkTint = if (hasSong && settings.ambientBackground) artworkTint else null,
             modifier = Modifier.layerBackdrop(contentBackdrop),
+            wallpaper = wallpaper,
+            wallpaperVideo = wallpaperVideo,
+            wallpaperDim = settings.customBackgroundDim,
         )
         CompositionLocalProvider(LocalBottomBarInset provides bottomInset, LocalAppBackdrop provides contentBackdrop) {
         SharedTransitionLayout(Modifier.fillMaxSize()) {

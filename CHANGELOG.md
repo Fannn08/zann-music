@@ -1,5 +1,9 @@
 # Changelog
 ## 1.9.9
+- Pembaruan dari aplikasi aktif lagi: Pengaturan, Pembaruan membaca rilis terbaru di GitHub Fannn08/zann-music
+- Latar beranda kustom: pilih gambar atau video (diputar berulang tanpa suara, maks 100 MB) sendiri di Pengaturan, Tampilan, Latar beranda. Bisa dihidupkan/dimatikan, diganti, dihapus, dan tingkat gelapnya diatur
+- Pengaturan baru "Putar di latar belakang" (Pengaturan, Pemutaran): matikan agar musik otomatis dijeda saat aplikasi ditutup atau layar dikunci
+- Terjemahan lirik: tombol terjemah di layar lirik dan pengaturan di Pengaturan, Lirik, Terjemahan (13 bahasa, termasuk Indonesia). Terjemahan tampil di bawah tiap baris lirik
 - Artwork bergerak di layar Sedang Diputar: lagu yang punya cover animasi Apple Music diputar tanpa suara di bagian atas layar dan menyatu dengan latar, dan Spotify Canvas (saat masuk ke Spotify) mengisi seluruh layar. Loop disimpan di cache, versi yang lebih ringan dipakai di data seluler, dan bisa diatur di Pengaturan, Artwork bergerak (Selalu, Wi-Fi, Mati)
 - Mini player bisa ditutup dengan swipe ke bawah: musik berhenti dan antrean dikosongkan, dengan getaran saat melewati batas
 - Bar kategori hasil Search (Hasil Teratas, Lagu, Artis, Album, dan lainnya) kini bergulir sampai ke tepi layar dengan pudar halus, tidak lagi terpotong tegak di pinggir

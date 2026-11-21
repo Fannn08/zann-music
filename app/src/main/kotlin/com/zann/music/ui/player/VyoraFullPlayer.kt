@@ -92,6 +92,7 @@ import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lyrics
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pause
@@ -174,6 +175,7 @@ import com.zann.music.data.library.LibraryManager
 import com.zann.music.data.lyrics.LyricLine
 import com.zann.music.data.lyrics.Lyrics
 import com.zann.music.data.lyrics.LyricsRepository
+import com.zann.music.data.lyrics.LyricsTranslator
 import com.zann.music.data.settings.SettingsRepository
 import com.zann.music.playback.PlayerManager
 import com.zann.music.playback.QueueEntry
@@ -1090,7 +1092,10 @@ private fun CurrentLyricsPeek(
 private fun LyricsPanel() {
     val item by PlayerManager.currentItem.collectAsState()
     val durationMs by PlayerManager.durationMs.collectAsState()
-    val providerPreference = com.zann.music.data.settings.SettingsRepository.settings.collectAsState().value.lyricsProvider
+    val panelSettings by SettingsRepository.settings.collectAsState()
+    val providerPreference = panelSettings.lyricsProvider
+    val translateOn = panelSettings.lyricsTranslate
+    val translateLang = panelSettings.lyricsTranslateLang
     val current = item
     if (current == null) return
 
@@ -1113,6 +1118,16 @@ private fun LyricsPanel() {
             else -> lyr.plain.orEmpty().lines().map { it.trimEnd() }
         }
     }
+    var translations by remember(current.id, translateLang, lyr) { mutableStateOf<List<String>?>(null) }
+    var translateFailed by remember(current.id, translateLang, lyr) { mutableStateOf(false) }
+    LaunchedEffect(current.id, lyr, translateOn, translateLang) {
+        translateFailed = false
+        if (!translateOn || lyr == null || lines.none { it.isNotBlank() }) return@LaunchedEffect
+        if (translations != null) return@LaunchedEffect
+        val result = LyricsTranslator.translate(current.id, lines, translateLang.tag)
+        translations = result
+        translateFailed = result == null
+    }
     val tooMany = stringResource(R.string.lyrics_card_max, LyricsCardRenderer.MAX_LINES)
     val context = LocalContext.current
     fun toggle(i: Int) {
@@ -1132,12 +1147,25 @@ private fun LyricsPanel() {
         when {
             loading -> CenterNote(stringResource(R.string.lyrics_loading))
             lyr == null || lines.none { it.isNotBlank() } -> CenterNote(stringResource(R.string.lyrics_unavailable))
-            lyr.isSynced -> SyncedLyrics(current.id, lyr.synced, selection, onLongPress = ::toggle, onToggle = ::toggle)
-            else -> PlainLyrics(lines, selection, onLongPress = ::toggle, onToggle = ::toggle)
+            lyr.isSynced -> SyncedLyrics(current.id, lyr.synced, selection, translations.takeIf { translateOn }, onLongPress = ::toggle, onToggle = ::toggle)
+            else -> PlainLyrics(lines, selection, translations.takeIf { translateOn }, onLongPress = ::toggle, onToggle = ::toggle)
         }
         if (!loading && lines.any { it.isNotBlank() }) {
             val sel = selection
             if (sel == null) {
+                Box(
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 6.dp, end = 44.dp)
+                        .size(36.dp)
+                        .glassClickable(pressedScale = 0.86f) {
+                            SettingsRepository.update { it.copy(lyricsTranslate = !it.lyricsTranslate) }
+                        }
+                        .liquidFill(shape = CircleShape, fill = Color.White.copy(alpha = if (translateOn) 0.32f else 0.12f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.Default.Translate, stringResource(R.string.lyrics_translate_toggle), tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(20.dp))
+                }
                 Box(
                     Modifier
                         .align(Alignment.TopEnd)
@@ -1178,6 +1206,13 @@ private fun LyricsPanel() {
             }
         }
     }
+    val translateFailedMsg = stringResource(R.string.lyrics_translate_failed)
+    LaunchedEffect(translateFailed) {
+        if (translateOn && translateFailed) {
+            android.widget.Toast.makeText(context, translateFailedMsg, android.widget.Toast.LENGTH_SHORT).show()
+            translateFailed = false
+        }
+    }
     cardLines?.let { picked ->
         LyricsCardDialog(
             item = current,
@@ -1211,6 +1246,7 @@ private fun SyncedLyrics(
     trackKey: String,
     lines: List<LyricLine>,
     selection: Set<Int>?,
+    translations: List<String>?,
     onLongPress: (Int) -> Unit,
     onToggle: (Int) -> Unit,
 ) {
@@ -1255,15 +1291,29 @@ private fun SyncedLyrics(
                         transformOrigin = TransformOrigin(0f, 0.5f)
                     }
                     .lyricGestures(i, selecting, onTap = { PlayerManager.seekTo(line.timeMs) }, onLongPress = onLongPress, onToggle = onToggle)
-            if (line.hasWords && i == active && !selecting) {
-                BitChordSweptLyricLine(
-                    line = line,
-                    clock = lyricClock,
-                    style = lineStyle,
-                    modifier = lineModifier.padding(vertical = 10.dp),
-                )
-            } else {
-                LyricText(text = line.text.ifBlank { "♪" }, chosen = chosen, style = lineStyle, modifier = lineModifier)
+            Column(Modifier.fillMaxWidth()) {
+                if (line.hasWords && i == active && !selecting) {
+                    BitChordSweptLyricLine(
+                        line = line,
+                        clock = lyricClock,
+                        style = lineStyle,
+                        modifier = lineModifier.padding(vertical = 10.dp),
+                    )
+                } else {
+                    LyricText(text = line.text.ifBlank { "♪" }, chosen = chosen, style = lineStyle, modifier = lineModifier)
+                }
+                val translated = translations?.getOrNull(i)
+                if (!translated.isNullOrBlank() && !translated.equals(line.text, ignoreCase = true)) {
+                    Text(
+                        text = translated,
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 24.sp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer { this.alpha = alpha * 0.8f }
+                            .padding(bottom = 6.dp),
+                    )
+                }
             }
         }
     }
@@ -1273,6 +1323,7 @@ private fun SyncedLyrics(
 private fun PlainLyrics(
     lines: List<String>,
     selection: Set<Int>?,
+    translations: List<String>?,
     onLongPress: (Int) -> Unit,
     onToggle: (Int) -> Unit,
 ) {
@@ -1286,16 +1337,27 @@ private fun PlainLyrics(
                 Spacer(Modifier.height(18.dp))
             } else {
                 val chosen = selection?.contains(i) == true
-                LyricText(
-                    text = line,
-                    chosen = chosen,
-                    style = MaterialTheme.typography.headlineSmall.copy(lineHeight = 34.sp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .graphicsLayer { alpha = if (!selecting || chosen) 0.92f else 0.4f }
-                        .lyricGestures(i, selecting, onTap = {}, onLongPress = onLongPress, onToggle = onToggle),
-                    vertical = 4.dp,
-                )
+                Column(Modifier.fillMaxWidth()) {
+                    LyricText(
+                        text = line,
+                        chosen = chosen,
+                        style = MaterialTheme.typography.headlineSmall.copy(lineHeight = 34.sp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer { alpha = if (!selecting || chosen) 0.92f else 0.4f }
+                            .lyricGestures(i, selecting, onTap = {}, onLongPress = onLongPress, onToggle = onToggle),
+                        vertical = 4.dp,
+                    )
+                    val translated = translations?.getOrNull(i)
+                    if (!translated.isNullOrBlank() && !translated.equals(line, ignoreCase = true)) {
+                        Text(
+                            text = translated,
+                            color = Color.White.copy(alpha = 0.7f),
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 24.sp),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                        )
+                    }
+                }
             }
         }
     }

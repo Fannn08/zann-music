@@ -85,6 +85,23 @@ enum class DiscordOnlineStatus(val wire: String) { ONLINE("online"), IDLE("idle"
 /** Activity verb on the Discord profile ("Listening to" / "Playing"). */
 enum class DiscordActivityKind(val wire: Int) { LISTENING(2), PLAYING(0) }
 
+/** Language lyric lines are translated into (Google Translate language codes). */
+enum class LyricsTranslateLang(val tag: String, val nativeName: String) {
+    INDONESIAN("id", "Bahasa Indonesia"),
+    ENGLISH("en", "English"),
+    MALAY("ms", "Bahasa Melayu"),
+    SPANISH("es", "Español"),
+    JAPANESE("ja", "日本語"),
+    KOREAN("ko", "한국어"),
+    CHINESE("zh-CN", "中文"),
+    ARABIC("ar", "العربية"),
+    FRENCH("fr", "Français"),
+    GERMAN("de", "Deutsch"),
+    PORTUGUESE("pt", "Português"),
+    HINDI("hi", "हिन्दी"),
+    THAI("th", "ไทย"),
+}
+
 enum class AppLanguage(val tag: String, val nativeName: String) {
     SYSTEM("", ""),
     ENGLISH("en", "English"),
@@ -127,6 +144,9 @@ data class AppSettings(
     val animatedPlayerBackground: Boolean = true,
     /** Now Playing artwork edge to edge at the top of the screen (BitChord's full-bleed artwork). Pinch to toggle. */
     val fullBleedArtwork: Boolean = false,
+    /** Own picture behind the home screen (chosen in Appearance); [customBackgroundDim] darkens it for legibility. */
+    val customBackground: Boolean = false,
+    val customBackgroundDim: Float = 0.45f,
     val haptics: Boolean = true,
     val glass: GlassSettings = GlassSettings(),
     val audioQuality: AudioQuality = AudioQuality.LOSSLESS,
@@ -165,6 +185,11 @@ data class AppSettings(
     val motionArtwork: VideoArtwork = VideoArtwork.ALWAYS,
     val lyricsProvider: LyricsProviderPreference = LyricsProviderPreference.AUTO,
     val showPlayerLyricsStrip: Boolean = true,
+    /** Show a translated line under every lyric line in the full player. */
+    val lyricsTranslate: Boolean = false,
+    val lyricsTranslateLang: LyricsTranslateLang = LyricsTranslateLang.INDONESIAN,
+    /** Keep playing when the app leaves the screen; off pauses as soon as VYORA is no longer visible. */
+    val backgroundPlayback: Boolean = true,
     val mediaCache: CacheSize = CacheSize.MB_512,
     val autoUpdateCheck: Boolean = false,
     val downloadWifiOnly: Boolean = false,
@@ -297,6 +322,8 @@ object SettingsRepository {
             ambientBackground = p.getBoolean("ambient", d.ambientBackground),
             animatedPlayerBackground = p.getBoolean("player_bg", d.animatedPlayerBackground),
             fullBleedArtwork = p.getBoolean("player_full_bleed", d.fullBleedArtwork),
+            customBackground = p.getBoolean("custom_bg", d.customBackground),
+            customBackgroundDim = p.getFloat("custom_bg_dim", d.customBackgroundDim).coerceIn(0f, 0.9f),
             haptics = p.getBoolean("haptics", d.haptics),
             glass = GlassSettings(
                 enabled = p.getBoolean("glass_enabled", g.enabled),
@@ -349,6 +376,9 @@ object SettingsRepository {
             motionArtwork = p.enum("motion_artwork", d.motionArtwork),
             lyricsProvider = p.enum("lyrics_provider", d.lyricsProvider),
             showPlayerLyricsStrip = p.getBoolean("player_lyrics_strip", d.showPlayerLyricsStrip),
+            lyricsTranslate = p.getBoolean("lyrics_translate", d.lyricsTranslate),
+            lyricsTranslateLang = p.enum("lyrics_translate_lang", d.lyricsTranslateLang),
+            backgroundPlayback = p.getBoolean("background_playback", d.backgroundPlayback),
             mediaCache = p.enum("media_cache", d.mediaCache),
             autoUpdateCheck = p.getBoolean("update_auto", d.autoUpdateCheck),
             downloadWifiOnly = p.getBoolean("download_wifi_only", d.downloadWifiOnly),
@@ -367,6 +397,8 @@ object SettingsRepository {
         putBoolean("ambient", s.ambientBackground)
         putBoolean("player_bg", s.animatedPlayerBackground)
         putBoolean("player_full_bleed", s.fullBleedArtwork)
+        putBoolean("custom_bg", s.customBackground)
+        putFloat("custom_bg_dim", s.customBackgroundDim)
         putBoolean("haptics", s.haptics)
         with(s.glass) {
             putBoolean("glass_enabled", enabled)
@@ -419,6 +451,9 @@ object SettingsRepository {
         putString("motion_artwork", s.motionArtwork.name)
         putString("lyrics_provider", s.lyricsProvider.name)
         putBoolean("player_lyrics_strip", s.showPlayerLyricsStrip)
+        putBoolean("lyrics_translate", s.lyricsTranslate)
+        putString("lyrics_translate_lang", s.lyricsTranslateLang.name)
+        putBoolean("background_playback", s.backgroundPlayback)
         putString("media_cache", s.mediaCache.name)
         putBoolean("update_auto", s.autoUpdateCheck)
         putBoolean("download_wifi_only", s.downloadWifiOnly)

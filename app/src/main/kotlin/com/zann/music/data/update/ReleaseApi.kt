@@ -19,16 +19,25 @@ data class ReleaseInfo(
 )
 
 object ReleaseApi {
-    const val REPO = "Yenalie/VYORA"
+    const val REPO = "Fannn08/zann-music"
     const val RELEASES_PAGE = "https://github.com/$REPO/releases"
     private const val LATEST = "https://api.github.com/repos/$REPO/releases/latest"
 
     val client: OkHttpClient = com.zann.music.core.Http.with(10, 30)
 
-    // ZANN MUSIC: pengecekan update dimatikan karena repo asli (VYORA) bukan milik build ini.
-    // Untuk mengaktifkannya lagi: isi REPO dengan repo GitHub sendiri dan tulis ulang latest() agar memanggil LATEST.
+    /** Rilis terbaru di repo ZANN MUSIC (harus publik); null kalau belum ada rilis atau tidak ada APK-nya. */
     @Throws(IOException::class)
-    fun latest(): ReleaseInfo? = null
+    fun latest(): ReleaseInfo? {
+        val request = Request.Builder().url(LATEST)
+            .header("Accept", "application/vnd.github+json")
+            .header("User-Agent", "ZANN-MUSIC-Android")
+            .build()
+        client.newCall(request).execute().use { response ->
+            if (response.code == 404) return null
+            if (!response.isSuccessful) throw IOException("HTTP ${response.code}")
+            return parse(response.body?.string().orEmpty())
+        }
+    }
 
     fun parse(json: String): ReleaseInfo? {
         val root = JSONObject(json)

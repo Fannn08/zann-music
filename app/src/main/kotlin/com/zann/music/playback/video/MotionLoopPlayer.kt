@@ -9,6 +9,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
@@ -29,10 +30,13 @@ class MotionLoopPlayer(context: Context) {
     private val dataSource = CacheDataSource.Factory()
         .setCache(MediaCache.get(context))
         .setUpstreamDataSourceFactory(
-            DefaultHttpDataSource.Factory()
-                .setAllowCrossProtocolRedirects(true)
-                .setConnectTimeoutMs(10_000)
-                .setReadTimeoutMs(15_000)
+            DefaultDataSource.Factory(
+                context,
+                DefaultHttpDataSource.Factory()
+                    .setAllowCrossProtocolRedirects(true)
+                    .setConnectTimeoutMs(10_000)
+                    .setReadTimeoutMs(15_000),
+            )
         )
         .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
 

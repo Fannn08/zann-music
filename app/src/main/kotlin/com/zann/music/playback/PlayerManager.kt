@@ -399,6 +399,10 @@ object PlayerManager {
         _playbackError.value = null
     }
 
+    fun pause() {
+        mediaController?.takeIf { it.isPlaying }?.pause()
+    }
+
     fun togglePlayPause() {
         val controller = mediaController
         if (controller == null) {

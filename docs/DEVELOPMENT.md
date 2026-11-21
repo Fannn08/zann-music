@@ -40,7 +40,7 @@ lain di atas versi yang sudah terpasang, dan updater di aplikasi juga mengecek h
 
 Di aplikasi, `data/update/` menangani pembaruan:
 
-- `ReleaseApi` membaca `api.github.com/repos/Yenalie/VYORA/releases/latest` (draft dan
+- `ReleaseApi` membaca `api.github.com/repos/Fannn08/zann-music/releases/latest` (draft dan
   pre-release diabaikan) dan memilih aset `.apk`.
 - `UpdateManager` membandingkan tag dengan `BuildConfig.VERSION_NAME`, mengunduh APK ke
   `cache/updates/`, memastikan package, versionCode, dan sertifikatnya cocok, lalu membuka

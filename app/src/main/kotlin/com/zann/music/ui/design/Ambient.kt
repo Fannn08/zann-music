@@ -4,12 +4,14 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -17,7 +19,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
 import coil.Coil
 import coil.request.ImageRequest
 import com.zann.music.ui.theme.VyoraBackground
@@ -32,6 +36,9 @@ import kotlinx.coroutines.withContext
 fun AmbientBackground(
     artworkTint: Color?,
     modifier: Modifier = Modifier,
+    wallpaper: java.io.File? = null,
+    wallpaperVideo: java.io.File? = null,
+    wallpaperDim: Float = 0.45f,
 ) {
     val base = artworkTint ?: Color.Transparent
     val glowTarget = if (artworkTint == null) Color.Transparent else glowColor(base)
@@ -44,7 +51,7 @@ fun AmbientBackground(
             .fillMaxSize()
             .drawBehind {
                 drawRect(background)
-                if (glow.alpha == 0f) return@drawBehind
+                if (wallpaper != null || wallpaperVideo != null || glow.alpha == 0f) return@drawBehind
                 val w = size.width
                 val h = size.height
                 drawRect(
@@ -70,7 +77,27 @@ fun AmbientBackground(
                     )
                 )
             }
-    )
+    ) {
+        if (wallpaperVideo != null) {
+            val art = remember(wallpaperVideo) {
+                com.zann.music.data.motion.MotionArt(
+                    url = android.net.Uri.fromFile(wallpaperVideo).toString(),
+                    source = com.zann.music.data.motion.MotionSource.APPLE_TALL,
+                    aspect = 9f / 16f,
+                )
+            }
+            com.zann.music.ui.player.MotionArtworkView(art = art, playing = true, modifier = Modifier.fillMaxSize())
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = wallpaperDim.coerceIn(0f, 0.9f))))
+        } else if (wallpaper != null) {
+            AsyncImage(
+                model = wallpaper,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = wallpaperDim.coerceIn(0f, 0.9f))))
+        }
+    }
 }
 
 internal fun glowColor(tint: Color): Color {

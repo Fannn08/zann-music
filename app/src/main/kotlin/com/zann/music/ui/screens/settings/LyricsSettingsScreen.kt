@@ -2,12 +2,14 @@ package com.zann.music.ui.screens.settings
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lyrics
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import com.zann.music.R
 import com.zann.music.data.settings.LyricsProviderPreference
+import com.zann.music.data.settings.LyricsTranslateLang
 import com.zann.music.data.settings.SettingsRepository
 
 private data class LyricsProviderChoice(
@@ -55,6 +57,35 @@ fun LyricsSettingsScreen(onBack: () -> Unit) {
                         onClick = {
                             if (settings.lyricsProvider != choice.provider) {
                                 SettingsRepository.update { it.copy(lyricsProvider = choice.provider) }
+                            }
+                        },
+                    )
+                }
+            }
+        }
+        item(key = "lyrics_translate") {
+            SettingsGroup(
+                header = stringResource(R.string.lyrics_translate_heading),
+                footer = stringResource(R.string.lyrics_translate_footer),
+            ) {
+                SettingsSwitchRow(
+                    title = stringResource(R.string.lyrics_translate_toggle),
+                    subtitle = stringResource(R.string.lyrics_translate_toggle_desc),
+                    checked = settings.lyricsTranslate,
+                    onCheckedChange = { on -> SettingsRepository.update { it.copy(lyricsTranslate = on) } },
+                    icon = Icons.Default.Translate,
+                    iconTint = com.zann.music.ui.theme.SystemColors.Blue,
+                    divider = true,
+                )
+                val langs = LyricsTranslateLang.entries
+                langs.forEachIndexed { index, lang ->
+                    SettingsChoiceRow(
+                        title = lang.nativeName,
+                        selected = settings.lyricsTranslateLang == lang,
+                        divider = index < langs.lastIndex,
+                        onClick = {
+                            if (settings.lyricsTranslateLang != lang) {
+                                SettingsRepository.update { it.copy(lyricsTranslateLang = lang) }
                             }
                         },
                     )

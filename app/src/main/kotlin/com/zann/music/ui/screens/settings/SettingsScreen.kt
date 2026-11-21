@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headphones
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
@@ -207,6 +208,13 @@ fun SettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                     )
                 }
                 SettingsSwitchRow(
+                    title = stringResource(R.string.settings_background_playback),
+                    subtitle = stringResource(R.string.settings_background_playback_desc),
+                    icon = Icons.Default.PlayCircle, iconTint = SystemColors.Green,
+                    checked = settings.backgroundPlayback,
+                    onCheckedChange = { v -> SettingsRepository.update { it.copy(backgroundPlayback = v) } },
+                )
+                SettingsSwitchRow(
                     title = stringResource(R.string.pause_on_disconnect),
                     icon = Icons.Default.Headphones, iconTint = SystemColors.Blue,
                     checked = settings.pauseOnDisconnect,
@@ -333,6 +341,27 @@ fun SettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
 @Composable
 fun AppearanceSettingsScreen(onBack: () -> Unit) {
     val settings by SettingsRepository.settings.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var wallpaperReady by remember { mutableStateOf(com.zann.music.ui.design.HomeWallpaper.exists(context)) }
+    val wallpaperFailed = stringResource(R.string.settings_home_bg_failed)
+    val picker = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
+    ) { uri ->
+        if (uri != null) scope.launch {
+            val isVideo = context.contentResolver.getType(uri)?.startsWith("video/") == true
+            val ok = withContext(Dispatchers.IO) {
+                if (isVideo) com.zann.music.ui.design.HomeWallpaper.importVideo(context, uri)
+                else com.zann.music.ui.design.HomeWallpaper.import(context, uri)
+            }
+            if (ok) {
+                wallpaperReady = true
+                SettingsRepository.update { it.copy(customBackground = true) }
+            } else {
+                Toast.makeText(context, wallpaperFailed, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
     SettingsPage(title = stringResource(R.string.settings_appearance), onBack = onBack) {
         item(key = "theme") {
             SettingsGroup(header = stringResource(R.string.settings_theme)) {
@@ -352,6 +381,55 @@ fun AppearanceSettingsScreen(onBack: () -> Unit) {
                     AccentSwatches(
                         selected = settings.accent,
                         onSelect = { accent -> SettingsRepository.update { it.copy(accent = accent) } },
+                    )
+                }
+            }
+        }
+        item(key = "home_background") {
+            SettingsGroup(
+                header = stringResource(R.string.settings_home_bg_heading),
+                footer = stringResource(R.string.settings_home_bg_footer),
+            ) {
+                SettingsSwitchRow(
+                    title = stringResource(R.string.settings_home_bg),
+                    subtitle = stringResource(R.string.settings_home_bg_desc),
+                    checked = settings.customBackground && wallpaperReady,
+                    onCheckedChange = { on ->
+                        if (on && !wallpaperReady) {
+                            picker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                        } else {
+                            SettingsRepository.update { it.copy(customBackground = on) }
+                        }
+                    },
+                    divider = true,
+                )
+                SettingsActionRow(
+                    title = stringResource(
+                        if (wallpaperReady) R.string.settings_home_bg_change else R.string.settings_home_bg_choose,
+                    ),
+                    onClick = {
+                        picker.launch(androidx.activity.result.PickVisualMediaRequest(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+                    },
+                    divider = wallpaperReady,
+                )
+                if (wallpaperReady) {
+                    SettingsSliderRow(
+                        title = stringResource(R.string.settings_home_bg_dim),
+                        value = settings.customBackgroundDim,
+                        onValueChange = { v -> SettingsRepository.update { it.copy(customBackgroundDim = v) } },
+                        valueRange = 0f..0.9f,
+                        valueLabel = "${(settings.customBackgroundDim * 100).toInt()}%",
+                        enabled = settings.customBackground,
+                    )
+                    SettingsActionRow(
+                        title = stringResource(R.string.settings_home_bg_remove),
+                        onClick = {
+                            com.zann.music.ui.design.HomeWallpaper.remove(context)
+                            wallpaperReady = false
+                            SettingsRepository.update { it.copy(customBackground = false) }
+                        },
+                        destructive = true,
+                        divider = false,
                     )
                 }
             }
