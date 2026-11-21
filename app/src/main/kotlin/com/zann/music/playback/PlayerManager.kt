@@ -16,6 +16,7 @@ import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 import com.zann.music.R
 import com.zann.music.data.library.LibraryManager
+import com.zann.music.data.stats.ListeningStats
 import com.zann.music.data.youtube.SimpleItem
 import com.zann.music.data.youtube.YouTubeClient
 import com.zann.music.playback.service.PlaybackService
@@ -103,6 +104,7 @@ object PlayerManager {
         val applicationContext = context.applicationContext
         appContext = applicationContext
         LibraryManager.init(applicationContext)
+        ListeningStats.init(applicationContext)
         connectController()
     }
 
@@ -148,6 +150,7 @@ object PlayerManager {
     private fun buildListener(controller: MediaController) = object : Player.Listener {
         override fun onIsPlayingChanged(playing: Boolean) {
             _isPlaying.value = playing
+            ListeningStats.onPlayingChanged(playing, _currentItem.value ?: controller.currentMediaItem?.toSimpleItem())
             if (playing) startProgressUpdates() else {
                 publishPosition(controller.currentPosition)
                 stopProgressUpdates()
@@ -170,6 +173,7 @@ object PlayerManager {
         }
 
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            ListeningStats.onTrackChanged(mediaItem?.toSimpleItem())
             publishCurrent(mediaItem)
             publishUpNext(controller)
             if (mediaItem != null && reason != Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT) {
@@ -259,7 +263,10 @@ object PlayerManager {
         publishPosition(controller.currentPosition)
         val known = _durationMs.value
         if (known > 0L) _progress.value = (_positionMs.value.toFloat() / known).coerceIn(0f, 1f)
-        if (controller.isPlaying) startProgressUpdates()
+        if (controller.isPlaying) {
+            ListeningStats.onPlayingChanged(true, _currentItem.value)
+            startProgressUpdates()
+        }
     }
 
     private fun publishCurrent(mediaItem: MediaItem?) {

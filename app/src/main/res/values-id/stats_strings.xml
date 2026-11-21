@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stats_back">Kembali</string>
+    <string name="stats_h_min">%1$d j %2$d mnt</string>
+    <string name="stats_h">%1$d j</string>
+    <string name="stats_min">%1$d mnt</string>
+
+    <string name="streak_title">Streak</string>
+    <string name="streak_subtitle">Dengarkan lagu tiap hari biar apinya terus menyala</string>
+    <string name="streak_current">Streak saat ini</string>
+    <string name="streak_longest">Terpanjang</string>
+    <string name="streak_active_days">Hari aktif</string>
+    <string name="streak_today_min">Menit hari ini</string>
+    <string name="streak_this_week">Minggu ini</string>
+    <string name="streak_activity">5 minggu terakhir</string>
+    <string name="streak_goal_done">Target hari ini tercapai. Sampai besok!</string>
+    <string name="streak_goal_left">%1$d menit lagi hari ini untuk menjaga streak</string>
+    <string name="streak_empty_hint">Dengarkan %1$d menit hari ini untuk memulai streak</string>
+    <plurals name="streak_day_label">
+        <item quantity="other">hari</item>
+    </plurals>
+
+    <string name="top_title">Top Listener</string>
+    <string name="top_tab_time">Waktu mendengarkan</string>
+    <string name="top_tab_songs">Lagu terbanyak</string>
+    <string name="period_7">7 hari</string>
+    <string name="period_30">30 hari</string>
+    <string name="period_all">Semua</string>
+    <string name="top_total_time">Total waktu mendengarkan</string>
+    <string name="top_songs_played">%1$d lagu diputar</string>
+    <string name="top_daily_avg">%1$s / hari</string>
+    <string name="top_artists">Artis teratas</string>
+    <string name="top_most_played">Paling sering diputar</string>
+    <string name="top_plays">%1$d kali</string>
+    <string name="top_plays_time">%1$d kali diputar \u00b7 %2$s</string>
+    <string name="top_empty">Belum ada data. Putar lagu dulu, lalu balik lagi ya!</string>
+    <string name="settings_stats_group">Statistikmu</string>
+</resources>

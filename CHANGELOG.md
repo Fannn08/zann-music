@@ -1,4 +1,9 @@
 # Changelog
+## 1.9.22
+- Fitur baru Streak: api harian, target menit, minggu ini, dan heatmap 5 minggu
+- Fitur baru Top Listener: waktu mendengarkan, artis teratas, dan lagu terbanyak (7 hari, 30 hari, semua)
+- Data statistik disimpan lokal di HP, tanpa server
+
 ## 1.9.21
 - Pembaruan dari aplikasi aktif lagi: Pengaturan, Pembaruan membaca rilis terbaru di GitHub Fannn08/zann-music
 - Latar beranda kustom: pilih gambar atau video (diputar berulang tanpa suara, maks 100 MB) sendiri di Pengaturan, Tampilan, Latar beranda. Bisa dihidupkan/dimatikan, diganti, dihapus, dan tingkat gelapnya diatur

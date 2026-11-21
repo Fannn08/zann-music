@@ -112,6 +112,8 @@ import com.zann.music.ui.screens.PlaylistsScreen
 import com.zann.music.ui.screens.LocalMusicScreen
 import com.zann.music.ui.screens.RecapScreen
 import com.zann.music.ui.screens.SearchScreen
+import com.zann.music.ui.screens.stats.StreakScreen
+import com.zann.music.ui.screens.stats.TopListenerScreen
 import com.zann.music.ui.screens.UserPlaylistScreen
 import com.zann.music.ui.screens.settings.AboutScreen
 import com.zann.music.ui.screens.settings.AccountScreen
@@ -565,6 +567,8 @@ fun VyoraAppRoot(settings: AppSettings) {
                     onDone = { navController.popBackStack() },
                 )
             }
+            screen("settings/streak") { StreakScreen(onBack = { navController.popBackStack() }) }
+            screen("settings/top_listener") { TopListenerScreen(onBack = { navController.popBackStack() }) }
             screen("settings/appearance") { com.zann.music.ui.screens.settings.AppearanceSettingsScreen(onBack = { navController.popBackStack() }) }
             screen("settings/lyrics") { com.zann.music.ui.screens.settings.LyricsSettingsScreen(onBack = { navController.popBackStack() }) }
             screen("settings/audio_quality") {

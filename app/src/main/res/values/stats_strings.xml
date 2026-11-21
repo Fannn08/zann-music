@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="stats_back">Back</string>
+    <string name="stats_h_min">%1$d h %2$d min</string>
+    <string name="stats_h">%1$d h</string>
+    <string name="stats_min">%1$d min</string>
+
+    <string name="streak_title">Streak</string>
+    <string name="streak_subtitle">Listen every day to keep the flame alive</string>
+    <string name="streak_current">Current streak</string>
+    <string name="streak_longest">Longest</string>
+    <string name="streak_active_days">Active days</string>
+    <string name="streak_today_min">Min today</string>
+    <string name="streak_this_week">This week</string>
+    <string name="streak_activity">Last 5 weeks</string>
+    <string name="streak_goal_done">Today\'s goal done. See you tomorrow!</string>
+    <string name="streak_goal_left">%1$d more min today to keep your streak</string>
+    <string name="streak_empty_hint">Listen for %1$d minute today to start your streak</string>
+    <plurals name="streak_day_label">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+
+    <string name="top_title">Top Listener</string>
+    <string name="top_tab_time">Listening time</string>
+    <string name="top_tab_songs">Top songs</string>
+    <string name="period_7">7 days</string>
+    <string name="period_30">30 days</string>
+    <string name="period_all">All time</string>
+    <string name="top_total_time">Total listening time</string>
+    <string name="top_songs_played">%1$d songs played</string>
+    <string name="top_daily_avg">%1$s / day</string>
+    <string name="top_artists">Top artists</string>
+    <string name="top_most_played">Most played</string>
+    <string name="top_plays">%1$d plays</string>
+    <string name="top_plays_time">%1$d plays \u00b7 %2$s</string>
+    <string name="top_empty">Nothing here yet. Play some music and come back!</string>
+    <string name="settings_stats_group">Your stats</string>
+</resources>

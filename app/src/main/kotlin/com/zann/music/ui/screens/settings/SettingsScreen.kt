@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInclusive
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.SettingsInputComponent
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
@@ -116,6 +118,21 @@ fun SettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     SettingsPage(title = stringResource(R.string.settings), onBack = onBack) {
         item(key = "account") {
             SettingsGroup { AccountSummaryRow(onClick = { onOpen("account") }) }
+        }
+        item(key = "stats") {
+            SettingsGroup(header = stringResource(R.string.settings_stats_group)) {
+                SettingsNavRow(
+                    title = stringResource(R.string.streak_title),
+                    icon = Icons.Default.LocalFireDepartment, iconTint = SystemColors.Orange,
+                    onClick = { onOpen("streak") },
+                )
+                SettingsNavRow(
+                    title = stringResource(R.string.top_title),
+                    icon = Icons.Default.Leaderboard, iconTint = SystemColors.Purple,
+                    onClick = { onOpen("top_listener") },
+                    divider = false,
+                )
+            }
         }
         item(key = "general") {
             SettingsGroup {
