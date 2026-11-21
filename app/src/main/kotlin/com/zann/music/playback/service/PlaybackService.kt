@@ -1,0 +1,673 @@
+package com.zann.music.playback.service
+
+import android.net.wifi.WifiManager
+import android.os.PowerManager
+import androidx.core.content.ContextCompat
+import androidx.media3.cast.RemoteCastPlayer
+import androidx.media3.cast.SessionAvailabilityListener
+import androidx.media3.common.MediaItem
+import com.google.android.gms.cast.framework.CastContext
+import com.zann.music.R
+import com.zann.music.data.discord.DiscordPresence
+import com.zann.music.data.discord.PresenceTrack
+import com.zann.music.playback.cast.CastItemConverter
+import com.zann.music.playback.cast.CastProxy
+import com.zann.music.playback.cast.CastSupport
+import android.app.PendingIntent
+import android.content.Intent
+import android.util.Log
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.datasource.HttpDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.common.PlaybackParameters
+import androidx.media3.session.MediaLibraryService
+import androidx.media3.session.MediaSession
+import com.zann.music.data.scrobble.Scrobbler
+import com.zann.music.ui.widget.NowPlayingWidget
+import com.zann.music.MainActivity
+import com.zann.music.data.library.LibraryManager
+import com.zann.music.data.settings.SettingsRepository
+import com.zann.music.data.youtube.StreamResolver
+import com.zann.music.data.youtube.SimpleItem
+import com.zann.music.data.youtube.YouTubeClient
+import com.zann.music.playback.MediaItems
+import com.zann.music.playback.SleepTimer
+import com.zann.music.playback.audio.AudioEffects
+import com.zann.music.playback.audio.OutputStatus
+import com.zann.music.playback.audio.VyoraRenderersFactory
+import com.zann.music.data.youtube.Loudness
+import com.zann.music.playback.source.MediaCache
+import com.zann.music.playback.source.YouTubeDataSource
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+
+@androidx.annotation.OptIn(markerClass = [androidx.media3.common.util.UnstableApi::class])
+class PlaybackService : MediaLibraryService() {
+
+    private var mediaSession: MediaLibrarySession? = null
+    private lateinit var player: ExoPlayer
+    private val scope = MainScope()
+    private var settingsJob: Job? = null
+    private val retriedIds = mutableSetOf<String>()
+    private lateinit var crossfader: Crossfader
+    private val listening = ListeningTracker { item, ms ->
+        LibraryManager.recordPlay(item, ms)
+        Scrobbler.onListened(item, ms)
+    }
+    private var tickerJob: Job? = null
+    private var autoplayJob: Job? = null
+    private val autoplayed = LinkedHashSet<String>()
+    private var autoplayFailedSeed: String? = null
+    private var castPlayer: RemoteCastPlayer? = null
+    private var castSnapshot: QueueSnapshot? = null
+    private var castPollJob: Job? = null
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var wifiLock: WifiManager.WifiLock? = null
+    private val active: Player get() = mediaSession?.player ?: player
+    @Volatile private var mainMediaId: String? = null
+    private var mainRenderers: VyoraRenderersFactory? = null
+    private var tailRenderers: VyoraRenderersFactory? = null
+
+    private class QueueSnapshot(
+        val items: List<MediaItem>,
+        val index: Int,
+        val positionMs: Long,
+        val playWhenReady: Boolean,
+        val repeatMode: Int,
+    )
+
+    private val presenceListener = object : Player.Listener {
+        override fun onEvents(player: Player, events: Player.Events) {
+            if (events.containsAny(
+                    Player.EVENT_MEDIA_ITEM_TRANSITION,
+                    Player.EVENT_PLAY_WHEN_READY_CHANGED,
+                    Player.EVENT_PLAYBACK_STATE_CHANGED,
+                    Player.EVENT_POSITION_DISCONTINUITY,
+                    Player.EVENT_MEDIA_METADATA_CHANGED,
+                )
+            ) {
+                pushPresence(player)
+                NowPlayingWidget.update(this@PlaybackService, player)
+            }
+            if (events.containsAny(Player.EVENT_MEDIA_ITEM_TRANSITION, Player.EVENT_IS_PLAYING_CHANGED) && player.isPlaying) {
+                Scrobbler.nowPlaying(player.currentMediaItem?.let(MediaItems::toSimpleItem))
+            }
+        }
+    }
+
+    private val castListener = object : Player.Listener {
+        override fun onEvents(player: Player, events: Player.Events) {
+            if (player === active) rememberCast(player)
+        }
+
+        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) = maybeAutoplay()
+
+        override fun onTimelineChanged(timeline: androidx.media3.common.Timeline, reason: Int) {
+            if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) maybeAutoplay()
+        }
+
+        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) = holdCastLocks(playWhenReady)
+
+        override fun onPlayerError(error: PlaybackException) {
+            Log.e(TAG, "Cast playback error (${error.errorCodeName})", error)
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        SettingsRepository.init(this)
+
+        val audioAttributes = AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+
+        val sourceFactory = DefaultMediaSourceFactory(YouTubeDataSource.audioFactory(this), com.zann.music.playback.extractor.VyoraExtractorsFactory())
+        val renderers = VyoraRenderersFactory(this)
+        renderers.loudness.targetGain = { loudnessGainFor(mainMediaId) }
+        renderers.spatial.enabled = SettingsRepository.current.spatialAudio
+        mainRenderers = renderers
+        player = ExoPlayer.Builder(this, renderers)
+            .setMediaSourceFactory(sourceFactory)
+            .setAudioAttributes(audioAttributes, true)
+            .setHandleAudioBecomingNoisy(SettingsRepository.current.pauseOnDisconnect)
+            .setWakeMode(C.WAKE_MODE_NETWORK)
+            .build()
+
+        player.addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) = handleError(error)
+
+            override fun onAudioSessionIdChanged(audioSessionId: Int) {
+                AudioEffects.attach(audioSessionId)
+                crossfader.onAudioSessionChanged(audioSessionId)
+            }
+
+            override fun onMediaItemTransition(mediaItem: androidx.media3.common.MediaItem?, reason: Int) {
+                retriedIds.clear()
+                mainMediaId = mediaItem?.mediaId
+                mainRenderers?.loudness?.onTrackChanged()
+                publishLoudness()
+                if (!crossfader.onTransition(player.currentMediaItemIndex)) player.volume = sleepFactor()
+                if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED) keepCurrentFirstInShuffle()
+                saveQueue()
+                maybeAutoplay()
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                if (playWhenReady) startTicker() else crossfader.cancel()
+                if (!playWhenReady && reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM &&
+                    SleepTimer.mode.value == SleepTimer.Mode.EndOfTrack
+                ) finishSleep(pause = false)
+            }
+
+            override fun onPositionDiscontinuity(
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int,
+            ) {
+                if (reason == Player.DISCONTINUITY_REASON_SEEK && oldPosition.mediaItemIndex == newPosition.mediaItemIndex) {
+                    crossfader.cancel()
+                    player.volume = sleepFactor()
+                }
+            }
+
+            override fun onRepeatModeChanged(repeatMode: Int) = maybeAutoplay()
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_ENDED) maybeAutoplay()
+            }
+
+            override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+                if (shuffleModeEnabled) keepCurrentFirstInShuffle()
+            }
+
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                if (!isPlaying) saveQueue()
+            }
+
+            override fun onTimelineChanged(timeline: androidx.media3.common.Timeline, reason: Int) {
+                if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
+                    saveQueue()
+                    maybeAutoplay()
+                }
+            }
+        })
+        player.addListener(presenceListener)
+        player.addAnalyticsListener(outputListener)
+        mainMediaId = player.currentMediaItem?.mediaId
+        crossfader = Crossfader(this, player, sourceFactory) { tailId ->
+            VyoraRenderersFactory(this).also { r ->
+                r.loudness.targetGain = { loudnessGainFor(tailId()) }
+                r.spatial.enabled = SettingsRepository.current.spatialAudio
+                tailRenderers = r
+            }
+        }
+        listening.attach(player)
+
+        player.setShuffleOrder(PlayNextShuffleOrder(IntArray(0)))
+        restoreQueue()
+
+        AudioEffects.attach(player.audioSessionId)
+
+        settingsJob = scope.launch {
+            var autoplayWas: Boolean? = null
+            var discordWas: Boolean? = null
+            SettingsRepository.settings.collect { s ->
+                if (discordWas != s.discordPresence) {
+                    if (s.discordPresence) pushPresence(active) else DiscordPresence.stop()
+                    discordWas = s.discordPresence
+                }
+                player.skipSilenceEnabled = s.skipSilence
+                mainRenderers?.spatial?.enabled = s.spatialAudio
+                tailRenderers?.spatial?.enabled = s.spatialAudio
+                applyPreferredDevice(s.preferUsbDac)
+                publishLoudness()
+                val params = PlaybackParameters(s.playbackSpeed, s.playbackPitch)
+                if (player.playbackParameters != params) player.playbackParameters = params
+                MediaCache.setMaxBytes(s.mediaCache.bytes)
+                player.setHandleAudioBecomingNoisy(s.pauseOnDisconnect)
+                if (s.crossfade && player.playWhenReady) startTicker()
+                if (autoplayWas != null && autoplayWas != s.autoplay) {
+                    if (s.autoplay) maybeAutoplay() else removeUpcomingAutoplay()
+                }
+                autoplayWas = s.autoplay
+            }
+        }
+        scope.launch {
+            com.zann.music.data.local.LosslessOutput.state.collect {
+                applyPreferredDevice(SettingsRepository.current.preferUsbDac)
+                publishLoudness()
+            }
+        }
+        scope.launch {
+            SleepTimer.mode.collect { mode ->
+                player.pauseAtEndOfMediaItems = mode == SleepTimer.Mode.EndOfTrack
+                if (mode == null) player.volume = 1f
+                if (mode != null) startTicker()
+            }
+        }
+
+        val sessionActivity = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        mediaSession = MediaLibrarySession.Builder(this, player, LibraryCallback(this, scope))
+            .setSessionActivity(sessionActivity)
+            .build()
+        setupCast()
+    }
+
+    private fun setupCast() {
+        if (!CastSupport.hasPlayServices(this)) return
+        val task = runCatching { CastContext.getSharedInstance(this, ContextCompat.getMainExecutor(this)) }
+            .onFailure { Log.w(TAG, "Cast framework unavailable", it) }
+            .getOrNull() ?: return
+        task.addOnSuccessListener { _ ->
+            if (mediaSession == null) return@addOnSuccessListener
+            val cp = RemoteCastPlayer.Builder(this)
+                .setMediaItemConverter(CastItemConverter { id -> CastProxy.urlFor(id) })
+                .build()
+            cp.addListener(presenceListener)
+            cp.addListener(castListener)
+            cp.setSessionAvailabilityListener(object : SessionAvailabilityListener {
+                override fun onCastSessionAvailable() = switchTo(cp)
+                override fun onCastSessionUnavailable() = switchTo(player)
+            })
+            castPlayer = cp
+            CastSupport.publish(true, null)
+            if (cp.isCastSessionAvailable) switchTo(cp)
+        }.addOnFailureListener { Log.w(TAG, "Cast framework unavailable", it) }
+    }
+
+    private fun switchTo(target: Player) {
+        val session = mediaSession ?: return
+        val previous = session.player
+        if (previous === target) return
+        listening.attach(target)
+        val toCast = target !== player
+        val snapshot = if (toCast) snapshotOf(previous) else castSnapshot ?: snapshotOf(previous)
+        if (toCast) {
+            runCatching { CastProxy.start(this) }.onFailure { Log.e(TAG, "Cast proxy failed", it) }
+            crossfader.cancel()
+            player.pause()
+            player.volume = 1f
+        } else {
+            castPollJob?.cancel()
+            castPollJob = null
+            holdCastLocks(false)
+            runCatching { previous.stop() }
+            CastProxy.stop()
+        }
+        session.player = target
+        if (snapshot.items.isNotEmpty()) {
+            target.setMediaItems(snapshot.items, snapshot.index.coerceIn(0, snapshot.items.lastIndex), snapshot.positionMs)
+            target.repeatMode = snapshot.repeatMode
+            target.playWhenReady = snapshot.playWhenReady
+            target.prepare()
+        }
+        castSnapshot = null
+        if (toCast) {
+            rememberCast(target)
+            holdCastLocks(snapshot.playWhenReady)
+            castPollJob = scope.launch {
+                while (isActive) {
+                    delay(2_000)
+                    if (active === target) rememberCast(target)
+                }
+            }
+        } else {
+            saveQueue()
+        }
+        val device = if (toCast) {
+            runCatching { CastSupport.context(this)?.sessionManager?.currentCastSession?.castDevice?.friendlyName }.getOrNull()
+                ?: getString(R.string.cast_device_fallback)
+        } else null
+        CastSupport.publish(true, device)
+        pushPresence(target)
+    }
+
+    private fun snapshotOf(p: Player): QueueSnapshot = QueueSnapshot(
+        items = List(p.mediaItemCount) { p.getMediaItemAt(it) },
+        index = p.currentMediaItemIndex.coerceAtLeast(0),
+        positionMs = p.currentPosition.coerceAtLeast(0L),
+        playWhenReady = p.playWhenReady,
+        repeatMode = p.repeatMode,
+    )
+
+    private fun rememberCast(p: Player) {
+        if (p.mediaItemCount == 0) return
+        castSnapshot = snapshotOf(p)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun holdCastLocks(hold: Boolean) {
+        val casting = active !== player
+        if (hold && casting) {
+            if (wakeLock == null) {
+                wakeLock = (getSystemService(POWER_SERVICE) as PowerManager)
+                    .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VYORA:cast")
+                    .apply { setReferenceCounted(false) }
+            }
+            if (wifiLock == null) {
+                wifiLock = (applicationContext.getSystemService(WIFI_SERVICE) as WifiManager)
+                    .createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "VYORA:cast")
+                    .apply { setReferenceCounted(false) }
+            }
+            runCatching { wakeLock?.acquire(4 * 60 * 60 * 1000L) }
+            runCatching { wifiLock?.acquire() }
+        } else {
+            runCatching { if (wakeLock?.isHeld == true) wakeLock?.release() }
+            runCatching { if (wifiLock?.isHeld == true) wifiLock?.release() }
+        }
+    }
+
+    private fun pushPresence(p: Player) {
+        if (p !== active) return
+        val item = p.currentMediaItem
+        val playing = p.playWhenReady &&
+            (p.playbackState == Player.STATE_READY || p.playbackState == Player.STATE_BUFFERING)
+        val paused = !p.playWhenReady && p.playbackState != Player.STATE_IDLE && p.playbackState != Player.STATE_ENDED
+        if (item == null || (!playing && !paused)) {
+            DiscordPresence.update(null)
+            return
+        }
+        val md = item.mediaMetadata
+        val now = System.currentTimeMillis()
+        val started = now - p.currentPosition.coerceAtLeast(0L)
+        val duration = p.duration.takeIf { it != C.TIME_UNSET && it > 0 }
+            ?: (md.extras?.getLong(MediaItems.EXTRA_DURATION_SEC, 0L) ?: 0L) * 1000L
+        val id = item.mediaId
+        val youtube = com.zann.music.data.youtube.SimpleItem.isYouTubeId(id)
+        // Only public artwork goes to Discord: server cover URLs carry credentials, local covers are content:// URIs.
+        val artwork = md.artworkUri?.toString()?.takeIf { youtube && it.startsWith("https://") }
+        DiscordPresence.update(
+            PresenceTrack(
+                title = md.title?.toString().orEmpty().ifBlank { id },
+                artist = md.artist?.toString().orEmpty(),
+                album = md.albumTitle?.toString().orEmpty(),
+                startedAt = started,
+                endsAt = if (duration > 0) started + duration else 0L,
+                artworkUrl = artwork,
+                youtubeId = id.takeIf { youtube },
+                paused = paused,
+            )
+        )
+    }
+
+    /**
+     * Sound Check's gain for [mediaId]: YouTube's loudness figure turned into a bounded linear gain, or
+     * exactly 1 when it is off, the phone speaker is playing and the user asked to leave it alone there,
+     * or nothing is known about the track. Runs on the audio thread — only reads volatile state.
+     */
+    private fun loudnessGainFor(mediaId: String?): Float {
+        val db = loudnessDbFor(mediaId) ?: return 1f
+        return Loudness.gainFor(db)
+    }
+
+    private fun loudnessDbFor(mediaId: String?): Double? {
+        val s = SettingsRepository.current
+        if (!s.loudnessNormalization) return null
+        if (s.loudnessOffOnSpeaker &&
+            com.zann.music.data.local.LosslessOutput.state.value.via == com.zann.music.data.local.LosslessOutput.Kind.SPEAKER
+        ) return null
+        val id = mediaId?.takeIf { SimpleItem.isYouTubeId(it) } ?: return null
+        return StreamResolver.loudnessDbFor(id)
+    }
+
+    private fun publishLoudness() {
+        val db = loudnessDbFor(mainMediaId)
+        OutputStatus.publishLoudness(db?.let { (-it).coerceIn(-15.0, 3.0).toFloat() })
+    }
+
+    private var preferredUsb: android.media.AudioDeviceInfo? = null
+
+    /** Prefer USB DAC: pin the player to an attached USB output; let Android choose again once it is gone. */
+    private fun applyPreferredDevice(prefer: Boolean) {
+        val usb = if (prefer) com.zann.music.data.local.LosslessOutput.usbDevice() else null
+        if (usb?.id == preferredUsb?.id) return
+        preferredUsb = usb
+        runCatching { player.setPreferredAudioDevice(usb) }.onFailure { Log.w(TAG, "Preferred device not applied", it) }
+    }
+
+    private val outputListener = object : androidx.media3.exoplayer.analytics.AnalyticsListener {
+        override fun onAudioTrackInitialized(
+            eventTime: androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime,
+            audioTrackConfig: androidx.media3.exoplayer.audio.AudioSink.AudioTrackConfig,
+        ) = OutputStatus.publishSink(audioTrackConfig.encoding, audioTrackConfig.sampleRate, audioTrackConfig.offload)
+
+        override fun onAudioTrackReleased(
+            eventTime: androidx.media3.exoplayer.analytics.AnalyticsListener.EventTime,
+            audioTrackConfig: androidx.media3.exoplayer.audio.AudioSink.AudioTrackConfig,
+        ) = OutputStatus.clearSink()
+    }
+
+    private fun handleError(error: PlaybackException) {
+        val item = player.currentMediaItem
+        val id = item?.mediaId.orEmpty()
+        Log.e(TAG, "Playback error on item $id (${error.errorCodeName})", error)
+
+        val http = generateSequence(error as Throwable) { it.cause }
+            .filterIsInstance<HttpDataSource.InvalidResponseCodeException>()
+            .firstOrNull()
+        if (http != null && (http.responseCode == 403 || http.responseCode == 410) && id !in retriedIds) {
+            retriedIds += id
+            (YouTubeDataSource.videoIdOf(item?.localConfiguration?.uri) ?: id).let(StreamResolver::invalidate)
+            player.seekTo(player.currentMediaItemIndex, player.currentPosition)
+            player.prepare()
+            player.play()
+            return
+        }
+
+        val offline = error.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED ||
+            error.errorCode == PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT
+        if (offline) return
+
+        if (SettingsRepository.current.skipUnavailable && player.hasNextMediaItem()) {
+            player.seekToNextMediaItem()
+            player.prepare()
+            player.play()
+        }
+    }
+
+    private fun startTicker() {
+        if (tickerJob?.isActive == true) return
+        tickerJob = scope.launch {
+            while (isActive) {
+                val busy = tick()
+                if (!busy) break
+                delay(if (crossfader.isActive || sleepFactor() < 1f) 50L else 250L)
+            }
+            tickerJob = null
+        }
+    }
+
+    private fun tick(): Boolean {
+        val mode = SleepTimer.mode.value
+        if (mode is SleepTimer.Mode.At && SleepTimer.remainingMs() == 0L) {
+            finishSleep(pause = true)
+            return false
+        }
+        if (!player.playWhenReady && !crossfader.isActive) return mode != null
+        val s = SettingsRepository.current
+        val outer = sleepFactor()
+        val fade = crossfader.tick(s.crossfade && mode != SleepTimer.Mode.EndOfTrack, s.crossfadeSeconds, outer)
+        player.volume = fade * outer
+        return s.crossfade || mode != null || crossfader.isActive
+    }
+
+    private fun sleepFactor(): Float = when (val mode = SleepTimer.mode.value) {
+        is SleepTimer.Mode.At -> ((SleepTimer.remainingMs() ?: 0L).toFloat() / SleepTimer.FADE_MS).coerceIn(0f, 1f)
+        SleepTimer.Mode.EndOfTrack -> {
+            val d = player.duration
+            if (d == C.TIME_UNSET || d < SleepTimer.FADE_MS * 2) 1f
+            else ((d - player.currentPosition).toFloat() / SleepTimer.FADE_MS).coerceIn(0f, 1f)
+        }
+        null -> 1f
+    }
+
+    private fun finishSleep(pause: Boolean) {
+        crossfader.cancel()
+        if (pause) active.pause()
+        SleepTimer.cancel()
+        player.pauseAtEndOfMediaItems = false
+        player.volume = 1f
+        if (!pause && player.hasNextMediaItem()) player.seekToNextMediaItem()
+    }
+
+    private fun maybeAutoplay() {
+        val player = active
+        if (!SettingsRepository.current.autoplay) return
+        if (player.repeatMode != Player.REPEAT_MODE_OFF || player.mediaItemCount == 0) return
+        if (autoplayJob?.isActive == true) return
+        val timeline = player.currentTimeline
+        val shuffle = player.shuffleModeEnabled
+        var left = 0
+        var index = player.currentMediaItemIndex
+        while (left <= AUTOPLAY_WHEN_LEFT) {
+            index = timeline.getNextWindowIndex(index, Player.REPEAT_MODE_OFF, shuffle)
+            if (index == C.INDEX_UNSET) break
+            left++
+        }
+        if (left > AUTOPLAY_WHEN_LEFT) return
+        val lastIndex = timeline.getLastWindowIndex(shuffle).takeIf { it != C.INDEX_UNSET } ?: return
+        // Radio needs a YouTube seed; for a queue of device files use the last streamed song, if any.
+        val queueSeed = (lastIndex downTo 0).asSequence()
+            .map { player.getMediaItemAt(it) }
+            .firstOrNull { it.mediaId.isNotBlank() && SimpleItem.isYouTubeId(it.mediaId) } ?: return
+        val tail = (lastIndex downTo maxOf(0, lastIndex - 6)).mapNotNull { MediaItems.toSimpleItem(player.getMediaItemAt(it)) }
+            .asReversed().let { listOfNotNull(MediaItems.toSimpleItem(queueSeed)) + it }
+        val seeds = com.zann.music.data.library.Recommend.seeds(
+            queueTail = tail,
+            recent = LibraryManager.recentSongs.value,
+            liked = LibraryManager.likedSongs.value,
+        ).filter { it.id != autoplayFailedSeed }
+        val seed = seeds.firstOrNull() ?: return
+
+        autoplayJob = scope.launch {
+            val s = SettingsRepository.current
+            val existing = (0 until player.mediaItemCount).mapNotNull { MediaItems.toSimpleItem(player.getMediaItemAt(it)) }
+            val inQueue = existing.mapTo(HashSet()) { it.id }
+            val exclude = if (s.dontRepeatSuggestions) inQueue + autoplayed else inQueue
+            var picks = emptyList<SimpleItem>()
+            // An exhausted or failing station falls through to the next seed instead of ending playback.
+            for (candidate in seeds) {
+                val songs = YouTubeClient.radio(candidate.id).getOrNull().orEmpty()
+                if (songs.isEmpty()) continue
+                val orderedExisting = existing.filter { it.id != candidate.id } + candidate
+                picks = com.zann.music.data.library.Recommend.extend(
+                    existing = orderedExisting,
+                    candidates = songs,
+                    limit = AUTOPLAY_BATCH,
+                    songsOnly = s.preferSongsOverVideos,
+                    exclude = exclude,
+                )
+                if (picks.isEmpty() && !s.dontRepeatSuggestions) {
+                    picks = songs.filter { it.id !in inQueue }.take(AUTOPLAY_BATCH)
+                }
+                if (picks.isNotEmpty()) break
+            }
+            if (picks.isEmpty()) {
+                autoplayFailedSeed = seed.id
+                return@launch
+            }
+            autoplayFailedSeed = null
+            if (!SettingsRepository.current.autoplay || player.mediaItemCount == 0) return@launch
+            picks.forEach { autoplayed += it.id }
+            while (autoplayed.size > 500) autoplayed.remove(autoplayed.first())
+            val ended = player.playbackState == Player.STATE_ENDED
+            val firstNew = player.mediaItemCount
+            player.addMediaItems(picks.map { MediaItems.from(it, autoplay = true) })
+            if (ended) {
+                player.seekTo(firstNew, 0L)
+                player.prepare()
+                player.play()
+            }
+        }
+    }
+
+    private fun removeUpcomingAutoplay() {
+        autoplayJob?.cancel()
+        val current = player.currentMediaItemIndex
+        for (i in player.mediaItemCount - 1 downTo 0) {
+            if (i != current && i > current && MediaItems.isAutoplay(player.getMediaItemAt(i))) player.removeMediaItem(i)
+        }
+    }
+
+    private fun keepCurrentFirstInShuffle() {
+        if (!player.shuffleModeEnabled || player.mediaItemCount < 2) return
+        val current = player.currentMediaItemIndex
+        if (player.currentTimeline.getFirstWindowIndex(true) == current) return
+        player.setShuffleOrder(PlayNextShuffleOrder.startingWith(current, player.mediaItemCount))
+    }
+
+    private fun saveQueue() {
+        val count = player.mediaItemCount
+        if (count == 0) {
+            QueueStore.clear(this)
+            return
+        }
+        val items = List(count) { player.getMediaItemAt(it) }
+        QueueStore.save(this, items, player.currentMediaItemIndex, player.currentPosition.coerceAtLeast(0L))
+    }
+
+    private fun restoreQueue() {
+        if (player.mediaItemCount > 0) return
+        val saved = QueueStore.load(this) ?: return
+        player.setMediaItems(saved.items, saved.index, saved.positionMs)
+    }
+
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? {
+        return mediaSession
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        val player = mediaSession?.player
+        if (player == null || !player.playWhenReady || player.mediaItemCount == 0) {
+            stopSelf()
+        }
+    }
+
+    override fun onDestroy() {
+        listening.detach()
+        saveQueue()
+        settingsJob?.cancel()
+        crossfader.release()
+        scope.cancel()
+        AudioEffects.release()
+        DiscordPresence.stop()
+        holdCastLocks(false)
+        CastProxy.stop()
+        castPlayer?.let {
+            it.setSessionAvailabilityListener(null)
+            it.removeListener(castListener)
+            it.removeListener(presenceListener)
+            it.release()
+        }
+        castPlayer = null
+        CastSupport.publish(false, null)
+        NowPlayingWidget.update(this, null)
+        mediaSession?.run {
+            release()
+            mediaSession = null
+        }
+        player.release()
+        super.onDestroy()
+    }
+
+    companion object {
+        private const val TAG = "VYORA-Service"
+        private const val AUTOPLAY_WHEN_LEFT = 2
+        private const val AUTOPLAY_BATCH = 15
+    }
+}

@@ -153,14 +153,14 @@
     <string name="eq_bass_boost">Bass boost</string>
     <string name="eq_virtualizer">Surround</string>
     <string name="eq_loudness">Loudness</string>
-    <string name="eq_footer">Effects apply to VYORA playback only. Some devices limit or ignore certain effects.</string>
+    <string name="eq_footer">Effects apply to ZANN MUSIC playback only. Some devices limit or ignore certain effects.</string>
     <string name="eq_unsupported">This device doesn\'t provide an equalizer.</string>
     <string name="eq_disabled_hint">Turn on the equalizer to hear your changes.</string>
     <string name="about_version">Version</string>
     <string name="about_desc">A free, open-source music player with an iOS 26 inspired Liquid Glass interface.</string>
     <string name="about_license">License</string>
     <string name="about_credits">Acknowledgements</string>
-    <string name="about_disclaimer">VYORA is not affiliated with YouTube, Google or Apple.</string>
+    <string name="about_disclaimer">ZANN MUSIC is not affiliated with YouTube, Google or Apple.</string>
     <string name="error_player_not_ready">The player isn\'t ready yet. Try choosing the song again.</string>
     <string name="error_cannot_play">This song can\'t be played. Try another one.</string>
     <string name="error_offline">You\'re offline. Playback resumes when you press play again.</string>
@@ -218,7 +218,7 @@
     <string name="autoplay">Autoplay</string>
     <string name="autoplay_desc">Similar songs keep playing after your queue</string>
     <string name="autoplay_pending">Similar songs will be added when your queue is about to end.</string>
-    <string name="autoplay_footer">When your queue ends, VYORA keeps playing similar songs. Turned off automatically while Repeat is on.</string>
+    <string name="autoplay_footer">When your queue ends, ZANN MUSIC keeps playing similar songs. Turned off automatically while Repeat is on.</string>
     <string name="queue_clear">Clear</string>
     <string name="sleep_timer">Sleep Timer</string>
     <string name="sleep_timer_left">Sleep Timer · %1$s</string>
@@ -236,7 +236,7 @@
         <item quantity="one">%d minute</item>
         <item quantity="other">%d minutes</item>
     </plurals>
-    <string name="eq_control_lost">Another app is controlling the sound right now. Turn off its sound enhancer for the VYORA equalizer to take effect.</string>
+    <string name="eq_control_lost">Another app is controlling the sound right now. Turn off its sound enhancer for the ZANN MUSIC equalizer to take effect.</string>
     <string name="video_artwork">Video artwork</string>
     <string name="video_artwork_always">Always</string>
     <string name="video_artwork_wifi">Wi‑Fi</string>
@@ -247,7 +247,7 @@
     <string name="account_youtube">YouTube Music account</string>
     <string name="account_sign_in">Sign in to YouTube Music</string>
     <string name="account_sign_in_desc">Sync favorites, playlists and saved albums</string>
-    <string name="account_intro">Sign in with your Google account to keep VYORA and YouTube Music in step: songs you like, playlists you make or edit and albums you save show up on both.</string>
+    <string name="account_intro">Sign in with your Google account to keep ZANN MUSIC and YouTube Music in step: songs you like, playlists you make or edit and albums you save show up on both.</string>
     <string name="account_sign_in_google">Sign in with Google</string>
     <string name="account_use_cookie">Sign in with cookies</string>
     <string name="account_cookie_desc">Paste the Cookie header of a signed-in music.youtube.com session. Only do this on your own device.</string>
@@ -274,15 +274,15 @@
     <string name="settings_updates">Updates</string>
     <string name="update_check_now">Check for updates</string>
     <string name="update_auto_check">Check automatically</string>
-    <string name="update_footer">VYORA looks for new versions on GitHub when it opens and twice a day, and lets you know with a notification.</string>
+    <string name="update_footer">ZANN MUSIC looks for new versions on GitHub when it opens and twice a day, and lets you know with a notification.</string>
     <string name="update_current_version">Version %1$s</string>
     <string name="update_checking">Checking…</string>
-    <string name="update_up_to_date">VYORA %1$s is up to date</string>
+    <string name="update_up_to_date">ZANN MUSIC %1$s is up to date</string>
     <string name="update_new_version">Version %1$s is available</string>
     <string name="update_ready">Version %1$s is ready to install</string>
     <string name="update_available_title">Update available</string>
-    <string name="update_available_body">VYORA %1$s is ready to download.</string>
-    <string name="update_available_size">VYORA %1$s is ready to download (%2$s).</string>
+    <string name="update_available_body">ZANN MUSIC %1$s is ready to download.</string>
+    <string name="update_available_size">ZANN MUSIC %1$s is ready to download (%2$s).</string>
     <string name="update_downloading">Downloading…</string>
     <string name="update_downloading_percent">Downloading… %1$d%%</string>
     <string name="update_now">Update</string>
@@ -293,11 +293,11 @@
     <string name="update_open_releases">Open GitHub</string>
     <string name="update_error_network">Couldn\'t reach GitHub. Check your connection.</string>
     <string name="update_error_download">The download stopped. Try again.</string>
-    <string name="update_error_invalid">The downloaded file isn\'t a newer VYORA build.</string>
+    <string name="update_error_invalid">The downloaded file isn\'t a newer ZANN MUSIC build.</string>
     <string name="update_error_signature">This build is signed with a different key, so Android can\'t install it over this version. Download it from GitHub and reinstall.</string>
     <string name="update_channel">App updates</string>
-    <string name="update_channel_desc">Lets you know when a new VYORA version is out</string>
-    <string name="update_notification_title">VYORA %1$s is available</string>
+    <string name="update_channel_desc">Lets you know when a new ZANN MUSIC version is out</string>
+    <string name="update_notification_title">ZANN MUSIC %1$s is available</string>
     <string name="update_notification_text">Tap to see what\'s new and update.</string>
     <string name="download">Download</string>
     <string name="download_cancel">Cancel download</string>
@@ -356,7 +356,7 @@
     <string name="output_connecting">Connecting…</string>
     <string name="output_stop_casting">Stop casting</string>
     <string name="lyrics_card_share">Share</string>
-    <string name="lyrics_card_saved">Saved to Pictures/VYORA</string>
+    <string name="lyrics_card_saved">Saved to Pictures/ZANN MUSIC</string>
     <string name="lyrics_card_save_failed">Couldn\'t save the image</string>
     <string name="lyrics_card_title">Lyrics card</string>
     <string name="lyrics_card_style_artwork">Artwork</string>
@@ -370,13 +370,13 @@
         <item quantity="one">%d song downloading</item>
         <item quantity="other">%d songs downloading</item>
     </plurals>
-    <string name="discord_risk">VYORA only gets the permissions shown on Discord\'s consent page (identify and Rich Presence). You can revoke it any time in Discord &gt; Settings &gt; Authorized Apps.</string>
+    <string name="discord_risk">ZANN MUSIC only gets the permissions shown on Discord\'s consent page (identify and Rich Presence). You can revoke it any time in Discord &gt; Settings &gt; Authorized Apps.</string>
     <string name="local_title">Lossless</string>
     <string name="local_subtitle">Music stored on this device</string>
     <string name="local_rescan">Rescan</string>
     <string name="local_lossless_count">%d lossless</string>
     <string name="local_permission_title">Play lossless files</string>
-    <string name="local_permission_body">YouTube Music only streams compressed audio. Allow VYORA to read music on this device to play FLAC, ALAC and WAV in full quality, up to Hi-Res.</string>
+    <string name="local_permission_body">YouTube Music only streams compressed audio. Allow ZANN MUSIC to read music on this device to play FLAC, ALAC and WAV in full quality, up to Hi-Res.</string>
     <string name="local_permission_allow">Allow access</string>
     <string name="local_open_settings">Open settings</string>
     <string name="local_scanning">Looking for music…</string>
@@ -423,7 +423,7 @@
     </plurals>
     <string name="server_title">Music server</string>
     <string name="server_subtitle">Lossless from your own library</string>
-    <string name="server_intro">Connect a Subsonic-compatible server (Navidrome, Gonic, Airsonic, Ampache…). VYORA streams the original files, so FLAC and ALAC play bit-perfect up to Hi-Res.</string>
+    <string name="server_intro">Connect a Subsonic-compatible server (Navidrome, Gonic, Airsonic, Ampache…). ZANN MUSIC streams the original files, so FLAC and ALAC play bit-perfect up to Hi-Res.</string>
     <string name="server_url">Server address</string>
     <string name="server_user">Username</string>
     <string name="server_password">Password</string>
@@ -466,7 +466,7 @@
     <string name="glass_saver">Battery saver look</string>
     <string name="glass_saver_footer">Lighter blur, no refraction or depth and a still player background: smoother on older phones and easier on the battery.</string>
     <string name="import_title">Import from Spotify</string>
-    <string name="import_intro">Paste a link to a public Spotify playlist or album. VYORA finds each song on YouTube Music and saves them as a new playlist.</string>
+    <string name="import_intro">Paste a link to a public Spotify playlist or album. ZANN MUSIC finds each song on YouTube Music and saves them as a new playlist.</string>
     <string name="import_footer">No Spotify account needed. Songs that cannot be found are skipped.</string>
     <string name="import_link">Spotify link</string>
     <string name="import_start">Import</string>
@@ -502,16 +502,16 @@
     <string name="scrobble_login_failed">Sign-in failed</string>
     <string name="scrobble_pending">%1$d scrobbles waiting, tap to send</string>
     <string name="settings_sources">Sources</string>
-    <string name="widget_name">VYORA Now Playing</string>
+    <string name="widget_name">ZANN MUSIC Now Playing</string>
     <string name="widget_description">Artwork, title and playback controls</string>
     <string name="widget_idle">Nothing playing</string>
     <string name="widget_previous">Previous</string>
     <string name="widget_play_pause">Play or pause</string>
     <string name="widget_next">Next</string>
     <string name="discord_activity_type">Activity</string>
-    <string name="discord_browser_hint">Opens Discord in your browser to approve VYORA</string>
+    <string name="discord_browser_hint">Opens Discord in your browser to approve ZANN MUSIC</string>
     <string name="discord_buttons">Buttons</string>
-    <string name="discord_buttons_sub">Listen on YouTube Music · Get VYORA</string>
+    <string name="discord_buttons_sub">Listen on YouTube Music · Get ZANN MUSIC</string>
     <string name="discord_connect_body">Show what you\'re listening to on your Discord profile, with cover art, time left and buttons.</string>
     <string name="discord_connect_title">Connect Discord</string>
     <string name="discord_dnd">Do not disturb</string>
@@ -525,14 +525,14 @@
     <string name="discord_playing">Playing</string>
     <string name="discord_preview">Preview</string>
     <string name="discord_preview_artist">Artist</string>
-    <string name="discord_preview_listening">Listening to VYORA</string>
-    <string name="discord_preview_playing">Playing VYORA</string>
+    <string name="discord_preview_listening">Listening to ZANN MUSIC</string>
+    <string name="discord_preview_playing">Playing ZANN MUSIC</string>
     <string name="discord_preview_title">Song title</string>
     <string name="discord_reconnect">Sign in again</string>
     <string name="discord_show_paused">Show when paused</string>
     <string name="discord_style">Appearance</string>
     <string name="discord_waiting_browser">Waiting for Discord in your browser…</string>
-    <string name="spotify_connect_body">Sign in to browse your Spotify playlists and Liked Songs. VYORA plays them through YouTube Music or saves them as playlists.</string>
+    <string name="spotify_connect_body">Sign in to browse your Spotify playlists and Liked Songs. ZANN MUSIC plays them through YouTube Music or saves them as playlists.</string>
     <string name="spotify_connect_title">Connect Spotify</string>
     <string name="spotify_connected">Connected to Spotify</string>
     <string name="spotify_footer">Uses Spotify\'s web player session. It is not an official Spotify feature and may stop working when Spotify changes its site. Audio always comes from YouTube Music.</string>
@@ -542,7 +542,7 @@
     <string name="spotify_no_match">No songs found on YouTube Music</string>
     <string name="spotify_no_playlists">No playlists yet</string>
     <string name="spotify_playlists">Playlists</string>
-    <string name="spotify_save_playlist">Save as VYORA playlist</string>
+    <string name="spotify_save_playlist">Save as ZANN MUSIC playlist</string>
     <string name="spotify_sign_in">Sign in with Spotify</string>
     <string name="spotify_sign_in_failed">Spotify sign-in failed.</string>
     <string name="spotify_sign_out">Sign out of Spotify</string>
@@ -550,7 +550,7 @@
     <string name="spotify_signed_in">Signed in to Spotify</string>
     <string name="spotify_starting">Finding songs on YouTube Music…</string>
     <string name="spotify_title">Spotify</string>
-    <string name="spotify_waiting_login">Log in; VYORA continues automatically</string>
+    <string name="spotify_waiting_login">Log in; ZANN MUSIC continues automatically</string>
     <string name="settings_transitions">Song Transitions</string>
     <string name="spotify_login_token">Log in</string>
     <string name="in_use">In use</string>
@@ -565,7 +565,7 @@
     <string name="download_quality_footer">Applies to new downloads.</string>
     <string name="waiting_for_wifi">Waiting for Wi-Fi</string>
     <string name="export_downloads">Export to Music Folder</string>
-    <string name="export_downloads_footer">Copies finished downloads to Music/VYORA for other apps.</string>
+    <string name="export_downloads_footer">Copies finished downloads to Music/ZANN MUSIC for other apps.</string>
     <string name="settings_output">Audio Output</string>
     <string name="output_header">Output</string>
     <string name="output_precision">Output Precision</string>

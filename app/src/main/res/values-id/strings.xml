@@ -152,14 +152,14 @@
     <string name="eq_bass_boost">Penguat bass</string>
     <string name="eq_virtualizer">Surround</string>
     <string name="eq_loudness">Kekerasan suara</string>
-    <string name="eq_footer">Efek hanya berlaku untuk pemutaran VYORA. Beberapa perangkat membatasi atau mengabaikan efek tertentu.</string>
+    <string name="eq_footer">Efek hanya berlaku untuk pemutaran ZANN MUSIC. Beberapa perangkat membatasi atau mengabaikan efek tertentu.</string>
     <string name="eq_unsupported">Perangkat ini tidak menyediakan equalizer.</string>
     <string name="eq_disabled_hint">Aktifkan equalizer untuk mendengar perubahannya.</string>
     <string name="about_version">Versi</string>
     <string name="about_desc">Pemutar musik gratis dan open source dengan antarmuka Liquid Glass terinspirasi iOS 26.</string>
     <string name="about_license">Lisensi</string>
     <string name="about_credits">Ucapan terima kasih</string>
-    <string name="about_disclaimer">VYORA tidak berafiliasi dengan YouTube, Google, atau Apple.</string>
+    <string name="about_disclaimer">ZANN MUSIC tidak berafiliasi dengan YouTube, Google, atau Apple.</string>
     <string name="error_player_not_ready">Pemutar belum siap. Coba pilih lagu lagi.</string>
     <string name="error_cannot_play">Lagu ini tidak dapat diputar. Coba lagu lain.</string>
     <string name="error_offline">Kamu sedang offline. Tekan putar lagi saat koneksi kembali.</string>
@@ -216,7 +216,7 @@
     <string name="autoplay">Putar Otomatis</string>
     <string name="autoplay_desc">Lagu serupa terus diputar setelah antrean Anda</string>
     <string name="autoplay_pending">Lagu serupa akan ditambahkan saat antrean hampir habis.</string>
-    <string name="autoplay_footer">Saat antrean habis, VYORA terus memutar lagu serupa. Tidak aktif selama Ulangi dinyalakan.</string>
+    <string name="autoplay_footer">Saat antrean habis, ZANN MUSIC terus memutar lagu serupa. Tidak aktif selama Ulangi dinyalakan.</string>
     <string name="queue_clear">Hapus</string>
     <string name="sleep_timer">Timer Tidur</string>
     <string name="sleep_timer_left">Timer Tidur · %1$s</string>
@@ -233,7 +233,7 @@
     <plurals name="minutes">
         <item quantity="other">%d menit</item>
     </plurals>
-    <string name="eq_control_lost">Aplikasi lain sedang mengendalikan suara. Matikan penyempurna suaranya agar equalizer VYORA berfungsi.</string>
+    <string name="eq_control_lost">Aplikasi lain sedang mengendalikan suara. Matikan penyempurna suaranya agar equalizer ZANN MUSIC berfungsi.</string>
     <string name="video_artwork">Artwork video</string>
     <string name="video_artwork_always">Selalu</string>
     <string name="video_artwork_wifi">Wi‑Fi</string>
@@ -244,7 +244,7 @@
     <string name="account_youtube">Akun YouTube Music</string>
     <string name="account_sign_in">Masuk ke YouTube Music</string>
     <string name="account_sign_in_desc">Sinkronkan favorit, playlist, dan album tersimpan</string>
-    <string name="account_intro">Masuk dengan akun Google supaya VYORA dan YouTube Music selalu sama: lagu yang kamu suka, playlist yang kamu buat atau ubah, dan album yang kamu simpan muncul di keduanya.</string>
+    <string name="account_intro">Masuk dengan akun Google supaya ZANN MUSIC dan YouTube Music selalu sama: lagu yang kamu suka, playlist yang kamu buat atau ubah, dan album yang kamu simpan muncul di keduanya.</string>
     <string name="account_sign_in_google">Masuk dengan Google</string>
     <string name="account_use_cookie">Masuk dengan cookie</string>
     <string name="account_cookie_desc">Tempel header Cookie dari sesi music.youtube.com yang sudah masuk. Lakukan hanya di perangkatmu sendiri.</string>
@@ -271,15 +271,15 @@
     <string name="settings_updates">Pembaruan</string>
     <string name="update_check_now">Periksa pembaruan</string>
     <string name="update_auto_check">Periksa otomatis</string>
-    <string name="update_footer">VYORA mencari versi baru di GitHub saat dibuka dan dua kali sehari, lalu memberi tahu lewat notifikasi.</string>
+    <string name="update_footer">ZANN MUSIC mencari versi baru di GitHub saat dibuka dan dua kali sehari, lalu memberi tahu lewat notifikasi.</string>
     <string name="update_current_version">Versi %1$s</string>
     <string name="update_checking">Memeriksa…</string>
-    <string name="update_up_to_date">VYORA %1$s sudah versi terbaru</string>
+    <string name="update_up_to_date">ZANN MUSIC %1$s sudah versi terbaru</string>
     <string name="update_new_version">Versi %1$s tersedia</string>
     <string name="update_ready">Versi %1$s siap dipasang</string>
     <string name="update_available_title">Pembaruan tersedia</string>
-    <string name="update_available_body">VYORA %1$s siap diunduh.</string>
-    <string name="update_available_size">VYORA %1$s siap diunduh (%2$s).</string>
+    <string name="update_available_body">ZANN MUSIC %1$s siap diunduh.</string>
+    <string name="update_available_size">ZANN MUSIC %1$s siap diunduh (%2$s).</string>
     <string name="update_downloading">Mengunduh…</string>
     <string name="update_downloading_percent">Mengunduh… %1$d%%</string>
     <string name="update_now">Perbarui</string>
@@ -290,11 +290,11 @@
     <string name="update_open_releases">Buka GitHub</string>
     <string name="update_error_network">Tidak bisa terhubung ke GitHub. Periksa koneksimu.</string>
     <string name="update_error_download">Unduhan terhenti. Coba lagi.</string>
-    <string name="update_error_invalid">File yang diunduh bukan versi VYORA yang lebih baru.</string>
+    <string name="update_error_invalid">File yang diunduh bukan versi ZANN MUSIC yang lebih baru.</string>
     <string name="update_error_signature">Build ini ditandatangani dengan kunci berbeda, jadi Android tidak bisa memasangnya di atas versi ini. Unduh dari GitHub lalu pasang ulang.</string>
     <string name="update_channel">Pembaruan aplikasi</string>
-    <string name="update_channel_desc">Memberi tahu saat ada versi VYORA baru</string>
-    <string name="update_notification_title">VYORA %1$s tersedia</string>
+    <string name="update_channel_desc">Memberi tahu saat ada versi ZANN MUSIC baru</string>
+    <string name="update_notification_title">ZANN MUSIC %1$s tersedia</string>
     <string name="update_notification_text">Ketuk untuk melihat yang baru dan memperbarui.</string>
     <string name="download">Unduh</string>
     <string name="download_cancel">Batalkan unduhan</string>
@@ -353,7 +353,7 @@
     <string name="output_connecting">Menghubungkan…</string>
     <string name="output_stop_casting">Hentikan transmisi</string>
     <string name="lyrics_card_share">Bagikan</string>
-    <string name="lyrics_card_saved">Tersimpan di Pictures/VYORA</string>
+    <string name="lyrics_card_saved">Tersimpan di Pictures/ZANN MUSIC</string>
     <string name="lyrics_card_save_failed">Gambar tidak bisa disimpan</string>
     <string name="lyrics_card_title">Kartu lirik</string>
     <string name="lyrics_card_style_artwork">Artwork</string>
@@ -366,13 +366,13 @@
     <plurals name="downloads_notification">
         <item quantity="other">Mengunduh %d lagu</item>
     </plurals>
-    <string name="discord_risk">VYORA hanya mendapat izin yang tampil di halaman persetujuan Discord (identitas dan Rich Presence). Kamu bisa mencabutnya kapan saja di Discord &gt; Pengaturan &gt; Aplikasi Resmi.</string>
+    <string name="discord_risk">ZANN MUSIC hanya mendapat izin yang tampil di halaman persetujuan Discord (identitas dan Rich Presence). Kamu bisa mencabutnya kapan saja di Discord &gt; Pengaturan &gt; Aplikasi Resmi.</string>
     <string name="local_title">Lossless</string>
     <string name="local_subtitle">Musik yang tersimpan di perangkat</string>
     <string name="local_rescan">Pindai ulang</string>
     <string name="local_lossless_count">%d lossless</string>
     <string name="local_permission_title">Putar file lossless</string>
-    <string name="local_permission_body">YouTube Music hanya menyediakan audio terkompresi. Izinkan VYORA membaca musik di perangkat ini untuk memutar FLAC, ALAC, dan WAV dengan kualitas penuh, hingga Hi-Res.</string>
+    <string name="local_permission_body">YouTube Music hanya menyediakan audio terkompresi. Izinkan ZANN MUSIC membaca musik di perangkat ini untuk memutar FLAC, ALAC, dan WAV dengan kualitas penuh, hingga Hi-Res.</string>
     <string name="local_permission_allow">Izinkan akses</string>
     <string name="local_open_settings">Buka pengaturan</string>
     <string name="local_scanning">Mencari musik…</string>
@@ -418,7 +418,7 @@
     </plurals>
     <string name="server_title">Server Musik</string>
     <string name="server_subtitle">Lossless dari koleksimu sendiri</string>
-    <string name="server_intro">Hubungkan server yang kompatibel dengan Subsonic (Navidrome, Gonic, Airsonic, Ampache…). VYORA memutar file aslinya, jadi FLAC dan ALAC terdengar utuh hingga Hi-Res.</string>
+    <string name="server_intro">Hubungkan server yang kompatibel dengan Subsonic (Navidrome, Gonic, Airsonic, Ampache…). ZANN MUSIC memutar file aslinya, jadi FLAC dan ALAC terdengar utuh hingga Hi-Res.</string>
     <string name="server_url">Alamat server</string>
     <string name="server_user">Nama pengguna</string>
     <string name="server_password">Kata sandi</string>
@@ -461,7 +461,7 @@
     <string name="glass_saver">Mode hemat daya</string>
     <string name="glass_saver_footer">Blur lebih ringan, tanpa refraksi atau kedalaman, dan latar pemutar diam: lebih mulus di ponsel lama dan lebih hemat baterai.</string>
     <string name="import_title">Impor dari Spotify</string>
-    <string name="import_intro">Tempel tautan playlist atau album Spotify publik. VYORA mencari setiap lagu di YouTube Music lalu menyimpannya sebagai playlist baru.</string>
+    <string name="import_intro">Tempel tautan playlist atau album Spotify publik. ZANN MUSIC mencari setiap lagu di YouTube Music lalu menyimpannya sebagai playlist baru.</string>
     <string name="import_footer">Tidak perlu akun Spotify. Lagu yang tidak ditemukan akan dilewati.</string>
     <string name="import_link">Tautan Spotify</string>
     <string name="import_start">Impor</string>
@@ -497,16 +497,16 @@
     <string name="scrobble_login_failed">Gagal masuk</string>
     <string name="scrobble_pending">%1$d scrobble menunggu, ketuk untuk kirim</string>
     <string name="settings_sources">Sumber</string>
-    <string name="widget_name">VYORA Sedang Diputar</string>
+    <string name="widget_name">ZANN MUSIC Sedang Diputar</string>
     <string name="widget_description">Sampul, judul, dan kontrol pemutaran</string>
     <string name="widget_idle">Tidak ada yang diputar</string>
     <string name="widget_previous">Sebelumnya</string>
     <string name="widget_play_pause">Putar atau jeda</string>
     <string name="widget_next">Berikutnya</string>
     <string name="discord_activity_type">Aktivitas</string>
-    <string name="discord_browser_hint">Membuka Discord di browser untuk menyetujui VYORA</string>
+    <string name="discord_browser_hint">Membuka Discord di browser untuk menyetujui ZANN MUSIC</string>
     <string name="discord_buttons">Tombol</string>
-    <string name="discord_buttons_sub">Listen on YouTube Music · Get VYORA</string>
+    <string name="discord_buttons_sub">Listen on YouTube Music · Get ZANN MUSIC</string>
     <string name="discord_connect_body">Tampilkan lagu yang kamu dengar di profil Discord, lengkap dengan cover, sisa waktu, dan tombol.</string>
     <string name="discord_connect_title">Hubungkan Discord</string>
     <string name="discord_dnd">Jangan ganggu</string>
@@ -520,14 +520,14 @@
     <string name="discord_playing">Bermain</string>
     <string name="discord_preview">Pratinjau</string>
     <string name="discord_preview_artist">Artis</string>
-    <string name="discord_preview_listening">Mendengarkan VYORA</string>
-    <string name="discord_preview_playing">Bermain VYORA</string>
+    <string name="discord_preview_listening">Mendengarkan ZANN MUSIC</string>
+    <string name="discord_preview_playing">Bermain ZANN MUSIC</string>
     <string name="discord_preview_title">Judul lagu</string>
     <string name="discord_reconnect">Masuk ulang</string>
     <string name="discord_show_paused">Tampilkan saat dijeda</string>
     <string name="discord_style">Tampilan</string>
     <string name="discord_waiting_browser">Menunggu persetujuan Discord di browser…</string>
-    <string name="spotify_connect_body">Masuk untuk melihat playlist dan Lagu yang Disukai di Spotify. VYORA memutarnya lewat YouTube Music atau menyimpannya sebagai playlist.</string>
+    <string name="spotify_connect_body">Masuk untuk melihat playlist dan Lagu yang Disukai di Spotify. ZANN MUSIC memutarnya lewat YouTube Music atau menyimpannya sebagai playlist.</string>
     <string name="spotify_connect_title">Hubungkan Spotify</string>
     <string name="spotify_connected">Terhubung ke Spotify</string>
     <string name="spotify_footer">Memakai sesi web player Spotify. Ini bukan fitur resmi Spotify dan bisa berhenti berfungsi saat Spotify mengubah situsnya. Audio selalu dari YouTube Music.</string>
@@ -537,7 +537,7 @@
     <string name="spotify_no_match">Tidak ada lagu yang ditemukan di YouTube Music</string>
     <string name="spotify_no_playlists">Belum ada playlist</string>
     <string name="spotify_playlists">Playlist</string>
-    <string name="spotify_save_playlist">Simpan sebagai playlist VYORA</string>
+    <string name="spotify_save_playlist">Simpan sebagai playlist ZANN MUSIC</string>
     <string name="spotify_sign_in">Masuk dengan Spotify</string>
     <string name="spotify_sign_in_failed">Gagal masuk ke Spotify.</string>
     <string name="spotify_sign_out">Keluar dari Spotify</string>
@@ -545,7 +545,7 @@
     <string name="spotify_signed_in">Berhasil masuk ke Spotify</string>
     <string name="spotify_starting">Mencari lagu di YouTube Music…</string>
     <string name="spotify_title">Spotify</string>
-    <string name="spotify_waiting_login">Masuk; VYORA lanjut otomatis</string>
+    <string name="spotify_waiting_login">Masuk; ZANN MUSIC lanjut otomatis</string>
     <string name="settings_transitions">Transisi Lagu</string>
     <string name="spotify_login_token">Masuk</string>
     <string name="in_use">Dipakai</string>
@@ -560,7 +560,7 @@
     <string name="download_quality_footer">Berlaku untuk unduhan baru.</string>
     <string name="waiting_for_wifi">Menunggu Wi-Fi</string>
     <string name="export_downloads">Ekspor ke Folder Musik</string>
-    <string name="export_downloads_footer">Menyalin unduhan yang selesai ke Music/VYORA untuk aplikasi lain.</string>
+    <string name="export_downloads_footer">Menyalin unduhan yang selesai ke Music/ZANN MUSIC untuk aplikasi lain.</string>
     <string name="settings_output">Output Audio</string>
     <string name="output_header">Output</string>
     <string name="output_precision">Presisi Output</string>

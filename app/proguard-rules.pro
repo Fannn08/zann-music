@@ -31,4 +31,4 @@
     public static int i(...);
 }
 
--keep class com.vyora.music.playback.cast.CastOptionsProvider { *; }
+-keep class com.zann.music.playback.cast.CastOptionsProvider { *; }

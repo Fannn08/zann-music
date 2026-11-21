@@ -52,7 +52,7 @@ Di aplikasi, `data/update/` menangani pembaruan:
 ## Struktur
 
 ```
-com.vyora.music
+com.zann.music
 ├── MainActivity.kt, VyoraApp.kt   Activity (tema, bahasa) dan Application (cache gambar Coil)
 ├── core/                          utilitas lintas modul (LocaleHelper)
 ├── data/

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = 'com.vyora.music'
+    namespace = 'com.zann.music'
     compileSdk = 36
 
     defaultConfig {
-        applicationId = 'com.vyora.music'
+        applicationId = 'com.zann.music'
         minSdk = 29
         targetSdk = 35
         versionCode = 38

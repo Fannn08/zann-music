@@ -1,0 +1,60 @@
+package com.zann.music.playback
+
+import android.net.Uri
+import android.os.Bundle
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import com.zann.music.data.youtube.ItemType
+import com.zann.music.data.youtube.SimpleItem
+
+object MediaItems {
+    const val EXTRA_DURATION_SEC = "vyora_duration_sec"
+    const val EXTRA_ITEM_TYPE = "vyora_item_type"
+    const val EXTRA_AUTOPLAY = "vyora_autoplay"
+    const val EXTRA_ARTIST_ID = "vyora_artist_id"
+    const val EXTRA_VIDEO = "vyora_video"
+
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+    fun from(item: SimpleItem, autoplay: Boolean = false): MediaItem {
+        val extras = Bundle().apply {
+            putLong(EXTRA_DURATION_SEC, item.duration)
+            putString(EXTRA_ITEM_TYPE, item.type)
+            putBoolean(EXTRA_AUTOPLAY, autoplay)
+            putBoolean(EXTRA_VIDEO, item.isVideo)
+            item.artistId?.let { putString(EXTRA_ARTIST_ID, it) }
+        }
+        return MediaItem.Builder()
+            .setMediaId(item.id)
+            .setUri(SimpleItem.playbackUrl(item.id))
+            // Server stream URLs carry auth parameters; key the cache on the song instead.
+            .apply { if (item.isServer) setCustomCacheKey("srv/${item.id}") }
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(item.title)
+                    .setArtist(item.artist)
+                    .setArtworkUri(item.thumbnail?.let { Uri.parse(it) })
+                    .setExtras(extras)
+                    .build()
+            )
+            .build()
+    }
+
+    fun toSimpleItem(media: MediaItem): SimpleItem? {
+        val id = media.mediaId
+        if (id.isBlank() || id == MediaItem.DEFAULT_MEDIA_ID) return null
+        val md = media.mediaMetadata
+        return SimpleItem(
+            id = id,
+            title = md.title?.toString().orEmpty(),
+            artist = md.artist?.toString().orEmpty(),
+            thumbnail = md.artworkUri?.toString(),
+            url = SimpleItem.playbackUrl(id),
+            duration = md.extras?.getLong(EXTRA_DURATION_SEC, 0L) ?: 0L,
+            type = md.extras?.getString(EXTRA_ITEM_TYPE) ?: ItemType.SONG,
+            artistId = md.extras?.getString(EXTRA_ARTIST_ID),
+            isVideo = md.extras?.getBoolean(EXTRA_VIDEO, false) == true,
+        )
+    }
+
+    fun isAutoplay(media: MediaItem): Boolean = media.mediaMetadata.extras?.getBoolean(EXTRA_AUTOPLAY, false) == true
+}

@@ -1,13 +1,13 @@
 # Startup and hot paths: app start, navigation, playback, lists and the glass renderer.
-HSPLcom/vyora/music/VyoraApp;->**(**)**
-HSPLcom/vyora/music/MainActivity;->**(**)**
-HSPLcom/vyora/music/ui/**;->**(**)**
-HSPLcom/vyora/music/playback/**;->**(**)**
-HSPLcom/vyora/music/data/library/**;->**(**)**
-HSPLcom/vyora/music/data/settings/**;->**(**)**
-HSPLcom/vyora/music/data/youtube/**;->**(**)**
-HSPLcom/vyora/music/data/lyrics/**;->**(**)**
-Lcom/vyora/music/**;
+HSPLcom/zann/music/VyoraApp;->**(**)**
+HSPLcom/zann/music/MainActivity;->**(**)**
+HSPLcom/zann/music/ui/**;->**(**)**
+HSPLcom/zann/music/playback/**;->**(**)**
+HSPLcom/zann/music/data/library/**;->**(**)**
+HSPLcom/zann/music/data/settings/**;->**(**)**
+HSPLcom/zann/music/data/youtube/**;->**(**)**
+HSPLcom/zann/music/data/lyrics/**;->**(**)**
+Lcom/zann/music/**;
 HSPLandroidx/compose/runtime/**;->**(**)**
 HSPLandroidx/compose/ui/**;->**(**)**
 HSPLandroidx/compose/foundation/**;->**(**)**

@@ -37,7 +37,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- "Play <song> on ZANN MUSIC" from Google Assistant / Android Auto voice search. -->
+            <!-- "Play <song> on VYORA" from Google Assistant / Android Auto voice search. -->
             <intent-filter>
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -73,7 +73,7 @@
 
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.vyora.music.playback.cast.CastOptionsProvider" />
+            android:value="com.zann.music.playback.cast.CastOptionsProvider" />
 
         <service
             android:name=".data.download.VyoraDownloadService"

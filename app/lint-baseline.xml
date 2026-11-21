@@ -36,7 +36,7 @@
         errorLine1="        config.setLocales(LocaleList(locale))"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/core/LocaleHelper.kt"
+            file="src/main/kotlin/com/zann/music/core/LocaleHelper.kt"
             line="19"
             column="9"/>
     </issue>
@@ -267,7 +267,7 @@
         errorLine1="    modifier: Modifier = Modifier,"
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/ArtistScreen.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/ArtistScreen.kt"
             line="135"
             column="5"/>
     </issue>
@@ -278,7 +278,7 @@
         errorLine1="    tabBarContentModifier: Modifier,"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/glass/floatingtabbar/FloatingTabBar.kt"
+            file="src/main/kotlin/com/zann/music/ui/glass/floatingtabbar/FloatingTabBar.kt"
             line="430"
             column="5"/>
     </issue>
@@ -289,7 +289,7 @@
         errorLine1="    tabBarContentModifier: Modifier,"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/glass/floatingtabbar/FloatingTabBar.kt"
+            file="src/main/kotlin/com/zann/music/ui/glass/floatingtabbar/FloatingTabBar.kt"
             line="649"
             column="5"/>
     </issue>
@@ -300,7 +300,7 @@
         errorLine1="    tabBarContentModifier: Modifier,"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/glass/floatingtabbar/FloatingTabBar.kt"
+            file="src/main/kotlin/com/zann/music/ui/glass/floatingtabbar/FloatingTabBar.kt"
             line="738"
             column="5"/>
     </issue>
@@ -311,7 +311,7 @@
         errorLine1="    tabBarContentModifier: Modifier,"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/glass/floatingtabbar/GeometricFloatingTabBar.kt"
+            file="src/main/kotlin/com/zann/music/ui/glass/floatingtabbar/GeometricFloatingTabBar.kt"
             line="52"
             column="5"/>
     </issue>
@@ -322,7 +322,7 @@
         errorLine1="    modifier: Modifier = Modifier,"
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/LibraryScreen.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/LibraryScreen.kt"
             line="64"
             column="5"/>
     </issue>
@@ -333,7 +333,7 @@
         errorLine1="            when (state) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/playback/PlayerManager.kt"
+            file="src/main/kotlin/com/zann/music/playback/PlayerManager.kt"
             line="136"
             column="13"/>
     </issue>
@@ -421,7 +421,7 @@
         errorLine1="            val code = if (Build.VERSION.SDK_INT >= 28) info.longVersionCode else @Suppress(&quot;DEPRECATION&quot;) info.versionCode.toLong()"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/settings/LanguageAboutScreens.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/settings/LanguageAboutScreens.kt"
             line="81"
             column="28"/>
     </issue>
@@ -432,7 +432,7 @@
         errorLine1="                    val bits = if (Build.VERSION.SDK_INT >= 24 &amp;&amp; f.containsKey(MediaFormat.KEY_PCM_ENCODING)) {"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/local/LocalLibrary.kt"
+            file="src/main/kotlin/com/zann/music/data/local/LocalLibrary.kt"
             line="183"
             column="36"/>
     </issue>
@@ -443,7 +443,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &amp;&amp; !context.packageManager.canRequestPackageInstalls()) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/update/UpdateManager.kt"
+            file="src/main/kotlin/com/zann/music/data/update/UpdateManager.kt"
             line="267"
             column="13"/>
     </issue>
@@ -454,7 +454,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &amp;&amp; !context.packageManager.canRequestPackageInstalls()) return"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/update/UpdateManager.kt"
+            file="src/main/kotlin/com/zann/music/data/update/UpdateManager.kt"
             line="284"
             column="13"/>
     </issue>
@@ -465,7 +465,7 @@
         errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.O) return"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/update/UpdateManager.kt"
+            file="src/main/kotlin/com/zann/music/data/update/UpdateManager.kt"
             line="296"
             column="13"/>
     </issue>
@@ -476,7 +476,7 @@
         errorLine1="        get() = if (Build.VERSION.SDK_INT >= 28) longVersionCode else versionCode.toLong()"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/update/UpdateManager.kt"
+            file="src/main/kotlin/com/zann/music/data/update/UpdateManager.kt"
             line="355"
             column="21"/>
     </issue>
@@ -494,7 +494,7 @@
         errorLine1="    var attempt by remember(name) { mutableStateOf(0) }"
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/ArtistScreen.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/ArtistScreen.kt"
             line="139"
             column="37"/>
     </issue>
@@ -505,7 +505,7 @@
         errorLine1="    var attempt by rememberSaveable { mutableStateOf(0) }"
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/HomeScreen.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/HomeScreen.kt"
             line="100"
             column="39"/>
     </issue>
@@ -516,7 +516,7 @@
         errorLine1="    var attempt by remember(playlistId) { mutableStateOf(0) }"
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/PlaylistScreen.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/PlaylistScreen.kt"
             line="109"
             column="43"/>
     </issue>
@@ -527,7 +527,7 @@
         errorLine1="            var offlineBytes by remember { mutableStateOf(0L) }"
         errorLine2="                                           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/settings/SettingsScreen.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/settings/SettingsScreen.kt"
             line="301"
             column="44"/>
     </issue>
@@ -549,7 +549,7 @@
         errorLine1="                .offset(x = knobX, y = 2.dp)"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/settings/SettingsComponents.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/settings/SettingsComponents.kt"
             line="349"
             column="18"/>
     </issue>
@@ -560,7 +560,7 @@
         errorLine1="                .offset(x = x)"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/settings/SettingsComponents.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/settings/SettingsComponents.kt"
             line="446"
             column="18"/>
     </issue>
@@ -593,7 +593,7 @@
         errorLine1="            prefs()?.edit()?.remove(KEY_BLOB)?.apply()"
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/account/AccountStore.kt"
+            file="src/main/kotlin/com/zann/music/data/account/AccountStore.kt"
             line="54"
             column="13"/>
     </issue>
@@ -604,7 +604,7 @@
         errorLine1="        if (blob != null) prefs()?.edit()?.putString(KEY_BLOB, blob)?.apply()"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/account/AccountStore.kt"
+            file="src/main/kotlin/com/zann/music/data/account/AccountStore.kt"
             line="76"
             column="27"/>
     </issue>
@@ -615,7 +615,7 @@
         errorLine1="        prefs()?.edit()?.remove(KEY_BLOB)?.apply()"
         errorLine2="        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/account/AccountStore.kt"
+            file="src/main/kotlin/com/zann/music/data/account/AccountStore.kt"
             line="89"
             column="9"/>
     </issue>
@@ -626,7 +626,7 @@
         errorLine1="            item.thumbnail?.takeIf { it.startsWith(&quot;http&quot;) }?.let { addImage(WebImage(Uri.parse(it))) }"
         errorLine2="                                                                                      ~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/playback/cast/CastItemConverter.kt"
+            file="src/main/kotlin/com/zann/music/playback/cast/CastItemConverter.kt"
             line="30"
             column="87"/>
     </issue>
@@ -637,7 +637,7 @@
         errorLine1="        val uri = Uri.parse(SimpleItem.playbackUrl(videoId))"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/playback/cast/CastProxy.kt"
+            file="src/main/kotlin/com/zann/music/playback/cast/CastProxy.kt"
             line="172"
             column="19"/>
     </issue>
@@ -648,7 +648,7 @@
         errorLine1="                                post { if (isDiscordHost(android.net.Uri.parse(url.orEmpty()).host)) accept(token) }"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/settings/DiscordScreens.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/settings/DiscordScreens.kt"
             line="347"
             column="58"/>
     </issue>
@@ -659,7 +659,7 @@
         errorLine1="            val request = DownloadRequest.Builder(item.id, Uri.parse(SimpleItem.watchUrl(item.id)))"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/download/Downloads.kt"
+            file="src/main/kotlin/com/zann/music/data/download/Downloads.kt"
             line="119"
             column="60"/>
     </issue>
@@ -670,7 +670,7 @@
         errorLine1="        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))"
         errorLine2="                                                         ~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/screens/settings/LanguageAboutScreens.kt"
+            file="src/main/kotlin/com/zann/music/ui/screens/settings/LanguageAboutScreens.kt"
             line="89"
             column="58"/>
     </issue>
@@ -681,7 +681,7 @@
         errorLine1="        val out = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888)"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="103"
             column="19"/>
     </issue>
@@ -692,7 +692,7 @@
         errorLine1="            canvas.save()"
         errorLine2="            ~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="169"
             column="13"/>
     </issue>
@@ -703,7 +703,7 @@
         errorLine1="        canvas.save()"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="181"
             column="9"/>
     </issue>
@@ -714,7 +714,7 @@
         errorLine1="                    val small = Bitmap.createScaledBitmap(crop, 12, 21, true)"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="206"
             column="33"/>
     </issue>
@@ -725,7 +725,7 @@
         errorLine1="                    val blurred = Bitmap.createScaledBitmap(Bitmap.createScaledBitmap(small, 36, 64, true), 108, 192, true)"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="207"
             column="35"/>
     </issue>
@@ -736,7 +736,7 @@
         errorLine1="                    val blurred = Bitmap.createScaledBitmap(Bitmap.createScaledBitmap(small, 36, 64, true), 108, 192, true)"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="207"
             column="61"/>
     </issue>
@@ -747,7 +747,7 @@
         errorLine1="        val small = Bitmap.createScaledBitmap(art, 24, 24, true)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="246"
             column="21"/>
     </issue>
@@ -758,7 +758,7 @@
         errorLine1="            val c = small.getPixel(x, y)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/player/LyricsCard.kt"
+            file="src/main/kotlin/com/zann/music/ui/player/LyricsCard.kt"
             line="253"
             column="21"/>
     </issue>
@@ -769,7 +769,7 @@
         errorLine1="                    android.graphics.drawable.ColorDrawable(if (dark) android.graphics.Color.BLACK else android.graphics.Color.WHITE)"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/MainActivity.kt"
+            file="src/main/kotlin/com/zann/music/MainActivity.kt"
             line="61"
             column="21"/>
     </issue>
@@ -780,7 +780,7 @@
         errorLine1="        prefs.edit().putBoolean(&quot;notifications_asked&quot;, true).apply()"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/MainActivity.kt"
+            file="src/main/kotlin/com/zann/music/MainActivity.kt"
             line="102"
             column="9"/>
     </issue>
@@ -791,7 +791,7 @@
         errorLine1="                    .setArtworkUri(item.thumbnail?.let { Uri.parse(it) })"
         errorLine2="                                                         ~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/playback/MediaItems.kt"
+            file="src/main/kotlin/com/zann/music/playback/MediaItems.kt"
             line="32"
             column="58"/>
     </issue>
@@ -802,7 +802,7 @@
         errorLine1="        url != null &amp;&amp; runCatching { Uri.parse(url).getQueryParameter(&quot;xtags&quot;)?.contains(&quot;drc=1&quot;) == true }.getOrDefault(false)"
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/youtube/StreamResolver.kt"
+            file="src/main/kotlin/com/zann/music/data/youtube/StreamResolver.kt"
             line="135"
             column="38"/>
     </issue>
@@ -813,7 +813,7 @@
         errorLine1="        runCatching { Uri.parse(url).getQueryParameter(&quot;expire&quot;)?.toLong()?.times(1000) }.getOrNull()"
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/youtube/StreamResolver.kt"
+            file="src/main/kotlin/com/zann/music/data/youtube/StreamResolver.kt"
             line="138"
             column="23"/>
     </issue>
@@ -824,7 +824,7 @@
         errorLine1="            appContext?.getSharedPreferences(PREFS, Context.MODE_PRIVATE)?.edit()?.clear()?.apply()"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/account/SyncEngine.kt"
+            file="src/main/kotlin/com/zann/music/data/account/SyncEngine.kt"
             line="98"
             column="13"/>
     </issue>
@@ -835,7 +835,7 @@
         errorLine1="                if (ok) appContext?.getSharedPreferences(PREFS, Context.MODE_PRIVATE)?.edit()?.putLong(KEY_LAST, now)?.apply()"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/account/SyncEngine.kt"
+            file="src/main/kotlin/com/zann/music/data/account/SyncEngine.kt"
             line="126"
             column="25"/>
     </issue>
@@ -846,7 +846,7 @@
         errorLine1="                                Intent(Intent.ACTION_VIEW, Uri.parse(release.pageUrl.ifBlank { ReleaseApi.RELEASES_PAGE }))"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/ui/components/UpdateDialog.kt"
+            file="src/main/kotlin/com/zann/music/ui/components/UpdateDialog.kt"
             line="105"
             column="60"/>
     </issue>
@@ -857,7 +857,7 @@
         errorLine1="            val settings = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse(&quot;package:${context.packageName}&quot;))"
         errorLine2="                                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/data/update/UpdateManager.kt"
+            file="src/main/kotlin/com/zann/music/data/update/UpdateManager.kt"
             line="269"
             column="79"/>
     </issue>
@@ -868,7 +868,7 @@
         errorLine1="    fun videoUri(videoId: String): Uri = Uri.parse(SimpleItem.watchUrl(videoId))"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/playback/source/YouTubeDataSource.kt"
+            file="src/main/kotlin/com/zann/music/playback/source/YouTubeDataSource.kt"
             line="42"
             column="42"/>
     </issue>
@@ -879,7 +879,7 @@
         errorLine1="                .setUri(Uri.parse(stream.url))"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/kotlin/com/vyora/music/playback/source/YouTubeDataSource.kt"
+            file="src/main/kotlin/com/zann/music/playback/source/YouTubeDataSource.kt"
             line="115"
             column="25"/>
     </issue>
