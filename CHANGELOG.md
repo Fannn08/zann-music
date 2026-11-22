@@ -1,4 +1,8 @@
 # Changelog
+## 1.9.23
+- Fitur baru Dynamic Island: pemutar mengambang di atas aplikasi lain, lengkap dengan pengaturan tampilan
+- Fitur baru Gaya suara: Sped up, Slowed + reverb, Nightcore, Lo-fi, 8D, dan Konser dari tombol kecepatan di Now Playing
+
 ## 1.9.22
 - Fitur baru Streak dan Top Listener (data lokal, tanpa server)
 
