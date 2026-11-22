@@ -91,4 +91,7 @@
     <string name="island_sample_title">Judul lagu</string>
     <string name="island_sample_artist">Artis</string>
     <string name="island_sample_lyric">Contoh baris lirik yang cukup panjang sampai terpotong</string>
+    <string name="island_capsule_lyrics">Lirik di kapsul</string>
+    <string name="island_capsule_lyrics_desc">Baris lirik berjalan di tengah kapsul ringkas</string>
+    <string name="island_never">Tidak pernah</string>
 </resources>

@@ -132,7 +132,7 @@ fun IslandSettingsScreen(onBack: () -> Unit) {
             SettingsGroup(header = stringResource(R.string.island_preview), footer = stringResource(R.string.island_preview_hint)) {
                 SettingsControlRow(divider = false) {
                     Box(
-                        Modifier.fillMaxWidth().height(if (previewExpanded) 190.dp else 110.dp)
+                        Modifier.fillMaxWidth().height(if (previewExpanded) 300.dp else 110.dp)
                             .clip(RoundedCornerShape(28.dp))
                             .background(Brush.verticalGradient(listOf(Color(0xFF3A4254), Color(0xFF12141C))))
                             .clickable { previewExpanded = !previewExpanded }
@@ -199,6 +199,11 @@ fun IslandSettingsScreen(onBack: () -> Unit) {
                     selected = cfg.content, onSelect = { v -> set { it.copy(content = v) } },
                 )
                 SettingsSwitchRow(
+                    title = stringResource(R.string.island_capsule_lyrics),
+                    subtitle = stringResource(R.string.island_capsule_lyrics_desc),
+                    checked = cfg.showCapsuleLyrics, onCheckedChange = { v -> set { it.copy(showCapsuleLyrics = v) } },
+                )
+                SettingsSwitchRow(
                     title = stringResource(R.string.island_fit_lyrics),
                     checked = cfg.fitLyricsToCamera, onCheckedChange = { v -> set { it.copy(fitLyricsToCamera = v) } },
                 )
@@ -244,7 +249,8 @@ fun IslandSettingsScreen(onBack: () -> Unit) {
             SettingsGroup(header = stringResource(R.string.island_behavior)) {
                 SliderRow(
                     stringResource(R.string.island_auto_collapse),
-                    stringResource(R.string.island_seconds, cfg.autoCollapseSec), cfg.autoCollapseSec, 1..15,
+                    if (cfg.autoCollapseSec == 0) stringResource(R.string.island_never) else stringResource(R.string.island_seconds, cfg.autoCollapseSec),
+                    cfg.autoCollapseSec, 0..60,
                 ) { v -> set { it.copy(autoCollapseSec = v) } }
                 ChipsRow(
                     title = stringResource(R.string.island_tap),

@@ -91,4 +91,7 @@
     <string name="island_sample_title">Song title</string>
     <string name="island_sample_artist">Artist</string>
     <string name="island_sample_lyric">A sample lyric line that is long enough to be cut off</string>
+    <string name="island_capsule_lyrics">Lyrics in capsule</string>
+    <string name="island_capsule_lyrics_desc">Scrolling lyric line in the middle of the compact capsule</string>
+    <string name="island_never">Never</string>
 </resources>

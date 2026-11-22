@@ -33,6 +33,7 @@ data class IslandConfig(
     val capsuleWidthDp: Int = 190,
     val capsuleHeightDp: Int = 38,
     val content: IslandContentMode = IslandContentMode.COVER_AND_EQ,
+    val showCapsuleLyrics: Boolean = true,   // lirik berjalan di tengah kapsul
     val fitLyricsToCamera: Boolean = false,
     val cameraGapDp: Int = 36,
     val eqStyle: IslandEqStyle = IslandEqStyle.BARS,
@@ -47,7 +48,7 @@ data class IslandConfig(
     val showButtons: Boolean = true,
     val buttonStyle: IslandButtonStyle = IslandButtonStyle.FILLED,
     // Perilaku
-    val autoCollapseSec: Int = 4,
+    val autoCollapseSec: Int = 12,         // 0 = tidak pernah menciut sendiri
     val tapAction: IslandTapAction = IslandTapAction.EXPAND,
     val vibrate: Boolean = true,
     // Posisi dan ukuran
@@ -62,7 +63,7 @@ data class IslandConfig(
             IslandPreset.COLORFUL -> keep.copy(preset = p, opacityPercent = 100, glow = true, glowIntensityPercent = 90, borderWidthDp = 0)
             IslandPreset.MINIMAL -> keep.copy(
                 preset = p, glow = false, opacityPercent = 100, content = IslandContentMode.COVER_ONLY,
-                capsuleWidthDp = 120, showLyrics = false,
+                capsuleWidthDp = 120, showLyrics = false, showCapsuleLyrics = false,
             )
         }
     }
@@ -113,6 +114,7 @@ object IslandSettings {
             capsuleWidthDp = p.getInt("capW", d.capsuleWidthDp),
             capsuleHeightDp = p.getInt("capH", d.capsuleHeightDp),
             content = p.enum("content", d.content),
+            showCapsuleLyrics = p.getBoolean("capLyrics", d.showCapsuleLyrics),
             fitLyricsToCamera = p.getBoolean("fitLyrics", d.fitLyricsToCamera),
             cameraGapDp = p.getInt("cameraGap", d.cameraGapDp),
             eqStyle = p.enum("eqStyle", d.eqStyle),
@@ -125,7 +127,7 @@ object IslandSettings {
             showLyrics = p.getBoolean("showLyrics", d.showLyrics),
             showButtons = p.getBoolean("showButtons", d.showButtons),
             buttonStyle = p.enum("buttonStyle", d.buttonStyle),
-            autoCollapseSec = p.getInt("autoCollapse", d.autoCollapseSec),
+            autoCollapseSec = p.getInt("autoCollapse", d.autoCollapseSec).let { v -> if (p.getInt("ver", 1) < 2 && v == 4) d.autoCollapseSec else v },
             tapAction = p.enum("tapAction", d.tapAction),
             vibrate = p.getBoolean("vibrate", d.vibrate),
             offsetXDp = p.getInt("offsetX", d.offsetXDp),
@@ -141,7 +143,7 @@ object IslandSettings {
             .putBoolean("glow", c.glow).putInt("glowIntensity", c.glowIntensityPercent)
             .putInt("borderWidth", c.borderWidthDp).putString("coverShape", c.coverShape.name).putString("accent", c.accent.name)
             .putInt("capW", c.capsuleWidthDp).putInt("capH", c.capsuleHeightDp)
-            .putString("content", c.content.name).putBoolean("fitLyrics", c.fitLyricsToCamera)
+            .putString("content", c.content.name).putBoolean("capLyrics", c.showCapsuleLyrics).putBoolean("fitLyrics", c.fitLyricsToCamera)
             .putInt("cameraGap", c.cameraGapDp).putString("eqStyle", c.eqStyle.name)
             .putInt("cardW", c.cardWidthDp).putBoolean("cardSameCorner", c.cardSameCorner)
             .putInt("coverSize", c.coverSizePercent).putInt("textSize", c.textSizePercent)
@@ -150,6 +152,7 @@ object IslandSettings {
             .putString("buttonStyle", c.buttonStyle.name)
             .putInt("autoCollapse", c.autoCollapseSec).putString("tapAction", c.tapAction.name)
             .putBoolean("vibrate", c.vibrate)
+            .putInt("ver", 2)
             .putInt("offsetX", c.offsetXDp).putInt("topGap", c.topGapDp).putInt("scale", c.scalePercent)
             .apply()
     }
