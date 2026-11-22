@@ -59,6 +59,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Lyrics
+import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -114,6 +115,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
     val server by com.zann.music.data.server.MusicServer.config.collectAsState()
     val spotify by com.zann.music.data.spotify.SpotifyAccount.profile.collectAsState()
     val update by UpdateManager.state.collectAsState()
+    val islandSettings by com.zann.music.data.island.IslandSettings.config.collectAsState()
 
     SettingsPage(title = stringResource(R.string.settings), onBack = onBack) {
         item(key = "account") {
@@ -141,6 +143,12 @@ fun SettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                     icon = Icons.Default.Palette, iconTint = SystemColors.Indigo,
                     value = themeLabel(settings.themeMode),
                     onClick = { onOpen("appearance") },
+                )
+                SettingsNavRow(
+                    title = stringResource(R.string.island_title),
+                    icon = Icons.Default.PhoneAndroid, iconTint = SystemColors.Purple,
+                    value = if (islandSettings.enabled) stringResource(R.string.island_on) else stringResource(R.string.vyora_off),
+                    onClick = { onOpen("island") },
                 )
                 SettingsNavRow(
                     title = stringResource(R.string.settings_liquid_glass),

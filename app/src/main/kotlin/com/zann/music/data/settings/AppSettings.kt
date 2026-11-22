@@ -171,6 +171,8 @@ data class AppSettings(
     val preferSongsOverVideos: Boolean = true,
     val playbackSpeed: Float = 1f,
     val playbackPitch: Float = 1f,
+    /** "Gaya suara": sped up, slowed + reverb, nightcore, lo-fi, 8D, konser. Dikalikan dengan kecepatan/nada di atas. */
+    val soundStyle: com.zann.music.playback.audio.SoundStyle = com.zann.music.playback.audio.SoundStyle.NORMAL,
     val scrobbleLastFm: Boolean = false,
     val scrobbleListenBrainz: Boolean = false,
     val skipSilence: Boolean = false,
@@ -354,6 +356,7 @@ object SettingsRepository {
             preferSongsOverVideos = p.getBoolean("autoplay_songs_only", d.preferSongsOverVideos),
             playbackSpeed = p.getFloat("playback_speed", d.playbackSpeed).coerceIn(0.5f, 2f),
             playbackPitch = p.getFloat("playback_pitch", d.playbackPitch).coerceIn(0.5f, 2f),
+            soundStyle = com.zann.music.playback.audio.SoundStyle.fromId(p.getString("sound_style", d.soundStyle.id)),
             scrobbleLastFm = p.getBoolean("scrobble_lastfm", d.scrobbleLastFm),
             scrobbleListenBrainz = p.getBoolean("scrobble_lb", d.scrobbleListenBrainz),
             skipSilence = p.getBoolean("skip_silence", d.skipSilence),
@@ -430,6 +433,7 @@ object SettingsRepository {
         putBoolean("autoplay_songs_only", s.preferSongsOverVideos)
         putFloat("playback_speed", s.playbackSpeed)
         putFloat("playback_pitch", s.playbackPitch)
+        putString("sound_style", s.soundStyle.id)
         putBoolean("scrobble_lastfm", s.scrobbleLastFm)
         putBoolean("scrobble_lb", s.scrobbleListenBrainz)
         putBoolean("skip_silence", s.skipSilence)

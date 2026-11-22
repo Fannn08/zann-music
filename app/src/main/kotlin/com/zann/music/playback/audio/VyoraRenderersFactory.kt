@@ -20,6 +20,7 @@ import com.zann.music.data.settings.SettingsRepository
 class VyoraRenderersFactory(context: Context) : DefaultRenderersFactory(context) {
     val loudness = LoudnessProcessor()
     val spatial = SpatialAudioProcessor()
+    val style = StyleAudioProcessor()
 
     init {
         setEnableAudioFloatOutput(true)
@@ -34,7 +35,7 @@ class VyoraRenderersFactory(context: Context) : DefaultRenderersFactory(context)
         val sink = DefaultAudioSink.Builder(context)
             .setEnableFloatOutput(true)
             .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
-            .setAudioProcessorChain(DefaultAudioSink.DefaultAudioProcessorChain(loudness, spatial))
+            .setAudioProcessorChain(DefaultAudioSink.DefaultAudioProcessorChain(loudness, spatial, style))
             .build()
         return PrecisionAudioSink(sink, ::floatAllowed)
     }

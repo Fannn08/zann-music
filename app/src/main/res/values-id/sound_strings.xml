@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="sound_equalizer">Ekualiser</string>
+    <string name="sound_system_eq_desc">Buka Ekualiser Android bawaan</string>
+    <string name="sound_system_eq_missing">Tidak ada ekualiser bawaan di HP ini</string>
+    <string name="sound_style">Gaya suara</string>
+    <string name="sound_style_summary">Sped up, slowed + reverb, lo-fi, 8D, dan lainnya</string>
+    <string name="sound_advanced">Lanjutan</string>
+    <string name="sound_advanced_summary">Sesuaikan tempo dan nada lagu</string>
+    <string name="sound_ok">Oke</string>
+    <string name="sound_style_normal">Normal</string>
+    <string name="sound_style_normal_desc">Lagu apa adanya</string>
+    <string name="sound_style_sped_up">Sped up</string>
+    <string name="sound_style_sped_up_desc">Lebih cepat dan tinggi, seperti versi sped up</string>
+    <string name="sound_style_slowed_reverb">Slowed + reverb</string>
+    <string name="sound_style_slowed_reverb_desc">Lebih pelan dan rendah, dengan gema lembut</string>
+    <string name="sound_style_nightcore">Nightcore</string>
+    <string name="sound_style_nightcore_desc">Jauh lebih cepat dan tinggi, 1.4x</string>
+    <string name="sound_style_lofi">Lo-fi</string>
+    <string name="sound_style_lofi_desc">Hangat dan santai, sedikit lebih pelan, dengan gema tipis</string>
+    <string name="sound_style_8d">8D</string>
+    <string name="sound_style_8d_desc">Suara berputar di sekeliling kepala. Paling enak pakai headset</string>
+    <string name="sound_style_concert">Konser</string>
+    <string name="sound_style_concert_desc">Gema ruangan besar seperti aula konser</string>
+</resources>

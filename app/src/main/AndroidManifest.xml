@@ -91,6 +91,20 @@
             </intent-filter>
         </service>
 
+        <!-- Dynamic Island: overlay pemutar musik lewat layanan aksesibilitas (tidak membaca isi layar). -->
+        <service
+            android:name=".ui.island.IslandOverlayService"
+            android:exported="false"
+            android:label="@string/island_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/island_accessibility_config" />
+        </service>
+
         <!-- Headset / widget buttons; also resumes the last queue when the app isn't running. -->
         <receiver
             android:name="androidx.media3.session.MediaButtonReceiver"

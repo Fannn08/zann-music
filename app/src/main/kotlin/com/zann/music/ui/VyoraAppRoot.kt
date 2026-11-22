@@ -568,6 +568,7 @@ fun VyoraAppRoot(settings: AppSettings) {
                 )
             }
             screen("settings/streak") { StreakScreen(onBack = { navController.popBackStack() }) }
+            screen("settings/island") { com.zann.music.ui.screens.settings.IslandSettingsScreen(onBack = { navController.popBackStack() }) }
             screen("settings/top_listener") { TopListenerScreen(onBack = { navController.popBackStack() }) }
             screen("settings/appearance") { com.zann.music.ui.screens.settings.AppearanceSettingsScreen(onBack = { navController.popBackStack() }) }
             screen("settings/lyrics") { com.zann.music.ui.screens.settings.LyricsSettingsScreen(onBack = { navController.popBackStack() }) }

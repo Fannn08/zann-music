@@ -207,6 +207,7 @@ class PlaybackService : MediaLibraryService() {
             VyoraRenderersFactory(this).also { r ->
                 r.loudness.targetGain = { loudnessGainFor(tailId()) }
                 r.spatial.enabled = SettingsRepository.current.spatialAudio
+                r.style.style = SettingsRepository.current.soundStyle
                 tailRenderers = r
             }
         }
@@ -228,9 +229,14 @@ class PlaybackService : MediaLibraryService() {
                 player.skipSilenceEnabled = s.skipSilence
                 mainRenderers?.spatial?.enabled = s.spatialAudio
                 tailRenderers?.spatial?.enabled = s.spatialAudio
+                mainRenderers?.style?.style = s.soundStyle
+                tailRenderers?.style?.style = s.soundStyle
                 applyPreferredDevice(s.preferUsbDac)
                 publishLoudness()
-                val params = PlaybackParameters(s.playbackSpeed, s.playbackPitch)
+                val params = PlaybackParameters(
+                    (s.playbackSpeed * s.soundStyle.speed).coerceIn(0.25f, 4f),
+                    (s.playbackPitch * s.soundStyle.pitch).coerceIn(0.25f, 4f),
+                )
                 if (player.playbackParameters != params) player.playbackParameters = params
                 MediaCache.setMaxBytes(s.mediaCache.bytes)
                 player.setHandleAudioBecomingNoisy(s.pauseOnDisconnect)

@@ -105,6 +105,7 @@ object PlayerManager {
         appContext = applicationContext
         LibraryManager.init(applicationContext)
         ListeningStats.init(applicationContext)
+        com.zann.music.data.island.IslandSettings.init(applicationContext)
         connectController()
     }
 

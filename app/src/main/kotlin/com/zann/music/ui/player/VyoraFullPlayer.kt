@@ -384,8 +384,8 @@ private fun FullPlayerContent(sheet: PlayerSheetState) {
                 isLiked = isLiked,
                 videoId = videoId,
                 wide = videoItem != null,
-                playbackSpeed = appSettings.playbackSpeed,
-                speedActive = appSettings.playbackSpeed != 1f || appSettings.playbackPitch != 1f,
+                playbackSpeed = appSettings.playbackSpeed * appSettings.soundStyle.speed,
+                speedActive = appSettings.playbackSpeed != 1f || appSettings.playbackPitch != 1f || appSettings.soundStyle != com.zann.music.playback.audio.SoundStyle.NORMAL,
             )
         } else
         Column(
@@ -514,8 +514,8 @@ private fun FullPlayerContent(sheet: PlayerSheetState) {
             PlayerBottomToggles(
                 mode = mode,
                 onMode = { mode = it },
-                speed = appSettings.playbackSpeed,
-                speedActive = appSettings.playbackSpeed != 1f || appSettings.playbackPitch != 1f,
+                speed = appSettings.playbackSpeed * appSettings.soundStyle.speed,
+                speedActive = appSettings.playbackSpeed != 1f || appSettings.playbackPitch != 1f || appSettings.soundStyle != com.zann.music.playback.audio.SoundStyle.NORMAL,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 26.dp),
             )
             Spacer(Modifier.height(18.dp))
@@ -592,7 +592,7 @@ private fun PlayerBottomToggles(
         if (outputs) OutputPickerDialog(onDismiss = { outputs = false })
         var speedDialog by remember { mutableStateOf(false) }
         SpeedToggle(speed, speedActive) { speedDialog = true }
-        if (speedDialog) PlaybackSpeedDialog(onDismiss = { speedDialog = false })
+        if (speedDialog) SoundSheet(onDismiss = { speedDialog = false })
         BottomToggle(Icons.AutoMirrored.Filled.QueueMusic, stringResource(R.string.queue), mode == MODE_QUEUE) {
             onMode(if (mode == MODE_QUEUE) MODE_ART else MODE_QUEUE)
         }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="sound_equalizer">Equalizer</string>
+    <string name="sound_system_eq_desc">Open the built-in Android equalizer</string>
+    <string name="sound_system_eq_missing">No built-in equalizer found on this device</string>
+    <string name="sound_style">Sound style</string>
+    <string name="sound_style_summary">Sped up, slowed + reverb, lo-fi, 8D and more</string>
+    <string name="sound_advanced">Advanced</string>
+    <string name="sound_advanced_summary">Adjust song tempo and pitch</string>
+    <string name="sound_ok">OK</string>
+    <string name="sound_style_normal">Normal</string>
+    <string name="sound_style_normal_desc">The song as it is</string>
+    <string name="sound_style_sped_up">Sped up</string>
+    <string name="sound_style_sped_up_desc">Faster and higher, like a sped up version</string>
+    <string name="sound_style_slowed_reverb">Slowed + reverb</string>
+    <string name="sound_style_slowed_reverb_desc">Slower and lower, with a soft echo</string>
+    <string name="sound_style_nightcore">Nightcore</string>
+    <string name="sound_style_nightcore_desc">Much faster and higher, 1.4x</string>
+    <string name="sound_style_lofi">Lo-fi</string>
+    <string name="sound_style_lofi_desc">Warm and relaxed, a little slower, with a thin echo</string>
+    <string name="sound_style_8d">8D</string>
+    <string name="sound_style_8d_desc">Sound circles around your head. Best with headphones</string>
+    <string name="sound_style_concert">Concert</string>
+    <string name="sound_style_concert_desc">Big room echo, like a concert hall</string>
+</resources>
