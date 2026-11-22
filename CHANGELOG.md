@@ -1,5 +1,5 @@
 # Changelog
-## 1.9.23
+## 1.9.24
 - Dynamic Island dirapikan: tampilan baru (kapsul dan kartu hitam dengan glow lembut dari warna cover, tombol putar bulat, progress bisa digeser), animasi buka/tutup mulus tanpa lag, lirik 2 baris yang berganti halus dan tampil juga di kapsul, serta penciutan otomatis default 12 detik (bisa diatur sampai tidak pernah)
 - Fitur baru Dynamic Island: pemutar mengambang di atas aplikasi lain, lengkap dengan pengaturan tampilan
 - Fitur baru Gaya suara: Sped up, Slowed + reverb, Nightcore, Lo-fi, 8D, dan Konser dari tombol kecepatan di Now Playing
