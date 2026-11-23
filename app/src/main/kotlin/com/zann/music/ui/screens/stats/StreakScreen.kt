@@ -1,5 +1,6 @@
 package com.zann.music.ui.screens.stats
 
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -188,7 +189,7 @@ private fun DayDot(date: LocalDate, done: Boolean, isToday: Boolean, future: Boo
     val accent = MaterialTheme.colorScheme.primary
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            date.dayOfWeek.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
+            date.dayOfWeek.getDisplayName(TextStyle.NARROW, LocalConfiguration.current.locales[0]),
             fontSize = 12.sp,
             fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium,
             color = if (isToday) accent else mutedColor(),
