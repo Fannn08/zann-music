@@ -1,5 +1,5 @@
 <resources>
-    <color name="splash_background">#FF000000</color>
+    <color name="splash_background">#FF0A0716</color>
     <color name="splash_bars">#FFFFFFFF</color>
 
     <style name="Theme.Vyora.Starting" parent="Theme.SplashScreen">

@@ -662,4 +662,6 @@
     <string name="mini_player_stop">Stop playing</string>
     <string name="motion_artwork">Motion artwork</string>
     <string name="motion_artwork_footer">Songs with animated album art (Apple Music) or a Canvas (Spotify, when signed in) play it silently in Now Playing. Loops are cached, and a lighter version is used on mobile data.</string>
+    <string name="about_developer">Developer</string>
+    <string name="about_social">Social media</string>
 </resources>

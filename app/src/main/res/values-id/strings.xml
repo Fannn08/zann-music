@@ -657,4 +657,6 @@
     <string name="mini_player_stop">Hentikan pemutaran</string>
     <string name="motion_artwork">Artwork bergerak</string>
     <string name="motion_artwork_footer">Lagu yang punya cover animasi (Apple Music) atau Canvas (Spotify, saat masuk) akan memutarnya tanpa suara di layar Sedang Diputar. Loop disimpan di cache, dan versi yang lebih ringan dipakai saat memakai data seluler.</string>
+    <string name="about_developer">Pengembang</string>
+    <string name="about_social">Media sosial</string>
 </resources>

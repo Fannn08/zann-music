@@ -27,6 +27,25 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import com.zann.music.data.update.UpdateManager
+import com.zann.music.data.update.UpdateState
+import com.zann.music.ui.components.updateErrorText
+import com.zann.music.ui.theme.SystemColors
+import com.zann.music.ui.theme.VyoraGroupedCell
 import com.zann.music.R
 import com.zann.music.core.LocaleHelper.findActivity
 import com.zann.music.data.settings.AppLanguage
@@ -61,6 +80,8 @@ fun LanguageScreen(onBack: () -> Unit) {
 }
 
 const val TELEGRAM_URL = "https://t.me/zannhdr"
+const val TIKTOK_URL = "https://www.tiktok.com/@hydrococoz"
+private const val DEVELOPER_NAME = "ZANN"
 
 private data class Credit(val name: String, val license: String, val url: String)
 
@@ -95,21 +116,122 @@ fun AboutScreen(onBack: () -> Unit, onOpenLicenses: () -> Unit = {}) {
         context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
+    val updateState by UpdateManager.state.collectAsState()
+    val currentVersion = UpdateManager.currentVersion?.toString() ?: com.zann.music.BuildConfig.VERSION_NAME
+    val updateStatus = when (val s = updateState) {
+        UpdateState.Idle -> stringResource(R.string.update_current_version, currentVersion)
+        UpdateState.Checking -> stringResource(R.string.update_checking)
+        UpdateState.UpToDate -> stringResource(R.string.update_up_to_date, currentVersion)
+        is UpdateState.Available -> stringResource(R.string.update_new_version, s.release.version.toString())
+        is UpdateState.Downloading ->
+            if (s.progress < 0f) stringResource(R.string.update_downloading)
+            else stringResource(R.string.update_downloading_percent, (s.progress * 100).toInt())
+        is UpdateState.ReadyToInstall -> stringResource(R.string.update_ready, s.release.version.toString())
+        is UpdateState.Failed -> updateErrorText(s.reason)
+    }
+
     SettingsPage(title = stringResource(R.string.settings_about), onBack = onBack) {
         item(key = "hero") {
-            Column(
-                Modifier.fillMaxWidth().padding(top = 18.dp, start = 16.dp, end = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Row(
+                Modifier.fillMaxWidth().padding(top = 18.dp, start = 16.dp, end = 16.dp)
+                    .clip(RoundedCornerShape(26.dp))
+                    .background(VyoraGroupedCell)
+                    .padding(horizontal = 24.dp, vertical = 26.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (icon != null) {
-                    Image(icon, null, Modifier.size(88.dp).clip(RoundedCornerShape(22.dp)))
-                    Spacer(Modifier.height(12.dp))
+                    Image(icon, null, Modifier.size(76.dp).clip(RoundedCornerShape(19.dp)))
+                    Spacer(Modifier.size(20.dp))
                 }
-                Text(stringResource(R.string.app_name), color = VyoraText, style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    stringResource(R.string.about_desc), color = VyoraTextMuted,
-                    style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                Column {
+                    Text(
+                        stringResource(R.string.app_name), color = VyoraText,
+                        style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "${com.zann.music.BuildConfig.VERSION_NAME} \u00B7 universal", color = VyoraTextMuted,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+            }
+        }
+        item(key = "update") {
+            SettingsGroup {
+                SettingsRow(
+                    title = stringResource(R.string.update_check_now),
+                    subtitle = updateStatus,
+                    icon = Icons.Default.CloudDownload, iconTint = SystemColors.Green,
+                    divider = false,
+                    onClick = {
+                        when (updateState) {
+                            is UpdateState.Available, is UpdateState.Downloading, is UpdateState.ReadyToInstall -> UpdateManager.showPrompt()
+                            UpdateState.Checking -> Unit
+                            else -> UpdateManager.check(context, manual = true)
+                        }
+                    },
+                )
+            }
+        }
+        item(key = "developer") {
+            Box(
+                Modifier.fillMaxWidth().padding(top = 22.dp, start = 16.dp, end = 16.dp)
+                    .aspectRatio(0.92f)
+                    .clip(RoundedCornerShape(26.dp))
+                    .background(Color.Black),
+            ) {
+                Image(
+                    painterResource(R.drawable.about_photo), null,
+                    Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.TopCenter,
+                )
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.verticalGradient(
+                            0.45f to Color.Transparent,
+                            1f to Color(0xE6000000),
+                        )
+                    )
+                )
+                Row(
+                    Modifier.align(Alignment.BottomStart).fillMaxWidth().padding(start = 24.dp, end = 24.dp, bottom = 24.dp),
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            DEVELOPER_NAME, color = Color.White,
+                            style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            stringResource(R.string.about_developer), color = Color(0xCCFFFFFF),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                    Image(
+                        painterResource(R.drawable.about_avatar), null,
+                        Modifier.size(104.dp).clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+        }
+        item(key = "social") {
+            SettingsGroup(header = stringResource(R.string.about_social)) {
+                SettingsNavRow(
+                    title = "Telegram",
+                    icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.Send,
+                    iconTint = Color(0xFF229ED9),
+                    value = "@zannhdr",
+                    onClick = { open(TELEGRAM_URL) },
+                )
+                SettingsNavRow(
+                    title = "TikTok",
+                    icon = Icons.Default.MusicNote,
+                    iconTint = Color(0xFFFF2D55),
+                    value = "@hydrococoz",
+                    onClick = { open(TIKTOK_URL) },
+                    divider = false,
                 )
             }
         }
@@ -128,21 +250,6 @@ fun AboutScreen(onBack: () -> Unit, onOpenLicenses: () -> Unit = {}) {
                     title = stringResource(R.string.about_source_code),
                     value = "GitHub",
                     onClick = { open("https://github.com/Fannn08/zann-music") },
-                    divider = false,
-                )
-            }
-        }
-        item(key = "contact") {
-            SettingsGroup(
-                header = stringResource(R.string.about_contact),
-                footer = stringResource(R.string.about_contact_footer),
-            ) {
-                SettingsNavRow(
-                    title = stringResource(R.string.about_contact_telegram),
-                    icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.Send,
-                    iconTint = androidx.compose.ui.graphics.Color(0xFF229ED9),
-                    value = "@zannhdr",
-                    onClick = { open(TELEGRAM_URL) },
                     divider = false,
                 )
             }
