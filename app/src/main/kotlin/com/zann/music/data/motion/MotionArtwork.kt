@@ -96,7 +96,11 @@ object MotionArtwork {
     private const val KEY_TOKEN = "apple_token"
     private const val HIT_TTL_MS = 14L * 24 * 3600 * 1000
     private const val MISS_TTL_MS = 3L * 24 * 3600 * 1000
+    /** A miss that may only be temporary (not signed in to Spotify): remembered in memory only, briefly. */
+    private const val SOFT_MISS_TTL_MS = 10L * 60 * 1000
     private const val MAX_ENTRIES = 600
+    /** Cache key prefix. Bumped from "m:" so misses cached wrongly by older versions are ignored. */
+    private const val P = "m2:"
     private const val UA =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
@@ -118,7 +122,7 @@ object MotionArtwork {
         val k = key(item)
         val now = System.currentTimeMillis()
         memory[k]?.let { (until, art) -> if (until > now) return Result.success(art) }
-        val raw = prefs?.getString("m:$k", null) ?: return null
+        val raw = prefs?.getString("$P$k", null) ?: return null
         return runCatching {
             val o = JSONObject(raw)
             val until = o.getLong("until")
@@ -134,8 +138,9 @@ object MotionArtwork {
         }
     }
 
-    private fun remember(item: SimpleItem, art: MotionArt?) {
+    private fun remember(item: SimpleItem, art: MotionArt?, soft: Boolean = false) {
         val k = key(item)
+        if (soft) { memory[k] = System.currentTimeMillis() + SOFT_MISS_TTL_MS to null; return }
         val until = System.currentTimeMillis() + if (art != null) HIT_TTL_MS else MISS_TTL_MS
         memory[k] = until to art
         val p = prefs ?: return
@@ -145,8 +150,17 @@ object MotionArtwork {
                 .apply { art.background?.let { put("bg", it) } })
         }
         val editor = p.edit()
-        if (p.all.size > MAX_ENTRIES) p.all.keys.filter { it.startsWith("m:") }.forEach(editor::remove)
-        editor.putString("m:$k", o.toString()).apply()
+        if (p.all.size > MAX_ENTRIES) p.all.keys.filter { it.startsWith("m:") || it.startsWith(P) }.forEach(editor::remove)
+        editor.putString("$P$k", o.toString()).apply()
+    }
+
+    /** Forget every cached answer (called after Spotify sign-in/out, which changes what can be found). */
+    fun clearCache() {
+        memory.clear()
+        val p = prefs ?: return
+        val editor = p.edit()
+        p.all.keys.filter { it.startsWith("m:") || it.startsWith(P) }.forEach(editor::remove)
+        editor.apply()
     }
 
     /**
@@ -159,12 +173,25 @@ object MotionArtwork {
         val art = withContext(Dispatchers.IO) {
             val apple = runCatching { apple(item, metered) }
                 .onFailure { Log.w(TAG, "Apple lookup failed: ${it.message}") }
-            val found = apple.getOrNull() ?: runCatching {
-                SpotifyAccount.canvasFor(item.title, item.artist, item.duration * 1000L)
-                    ?.let { MotionArt(it, MotionSource.SPOTIFY_CANVAS, 9f / 16f) }
-            }.onFailure { Log.w(TAG, "Canvas lookup failed: ${it.message}") }.getOrNull()
-            // Only cache a miss when the lookup actually answered; a network error should retry next time.
-            if (found != null || apple.isSuccess) remember(item, found)
+            val appleArt = apple.getOrNull()
+            // Spotify Canvas is the artist's own video, so it is preferred over nothing, and is tried whenever
+            // Apple has none (or Apple failed).
+            val canvas = if (appleArt == null) {
+                runCatching {
+                    SpotifyAccount.canvasFor(item.title, item.artist, item.duration * 1000L)
+                        ?.let { MotionArt(it, MotionSource.SPOTIFY_CANVAS, 9f / 16f) }
+                }.onFailure { Log.w(TAG, "Canvas lookup failed: ${it.message}") }
+            } else null
+            val found = appleArt ?: canvas?.getOrNull()
+            when {
+                found != null -> remember(item, found)
+                // Both sources really answered "nothing here": safe to remember for a few days.
+                apple.isSuccess && canvas?.isSuccess == true && SpotifyAccount.isSignedIn -> remember(item, null)
+                // Apple has nothing but Spotify could not be asked (not signed in): short, in-memory only,
+                // so signing in later is picked up right away.
+                apple.isSuccess && canvas?.isSuccess == true -> remember(item, null, soft = true)
+                // Any failure (token, HTTP error, rotated Spotify hash): do not cache, retry next time.
+            }
             found
         }
         return art
@@ -179,13 +206,15 @@ object MotionArtwork {
         val fronts = listOf(storefront(), "us").distinct()
         for (sf in fronts) {
             val album = appleAlbumId(item.title, item.artist, durationMs, sf) ?: continue
-            val token = appleToken() ?: return null
+            // null from here on is a failure (thrown, so it is not cached as "no motion art"); only a catalog
+            // answer without editorialVideo is a real "none".
+            val token = appleToken() ?: throw java.io.IOException("Apple token unavailable")
             val json = get(
                 "https://amp-api.music.apple.com/v1/catalog/$sf/albums/$album?extend=editorialVideo",
                 mapOf("Authorization" to "Bearer $token", "Origin" to "https://music.apple.com"),
-            ) ?: continue
+            ) ?: throw java.io.IOException("Apple catalog request failed")
             val art = parseAppleAlbum(JSONObject(json)) ?: return null
-            val master = get(art.url) ?: return null
+            val master = get(art.url) ?: throw java.io.IOException("Apple HLS master request failed")
             val mp4 = pickRendition(master, if (metered) 500 else 700) ?: return null
             return art.copy(url = mp4)
         }
@@ -200,7 +229,7 @@ object MotionArtwork {
             .addQueryParameter("limit", "10")
             .addQueryParameter("country", storefront)
             .build().toString()
-        val body = get(url) ?: return null
+        val body = get(url) ?: throw java.io.IOException("iTunes search failed")
         return bestITunesAlbum(JSONObject(body), title, artist, durationMs)
     }
 

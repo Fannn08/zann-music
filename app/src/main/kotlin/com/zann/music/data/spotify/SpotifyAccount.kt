@@ -187,6 +187,8 @@ object SpotifyAccount {
                 putString(KEY_AVATAR, me.avatarUrl)
             }
             _profile.value = me
+            // Canvas becomes findable once signed in: forget "no motion art" answers given before.
+            com.zann.music.data.motion.MotionArtwork.clearCache()
             me
         }.onFailure { Log.w(TAG, "Spotify sign-in failed", it); token = null }
     }
@@ -206,6 +208,7 @@ object SpotifyAccount {
         tokenExpires = 0L
         anonToken = null
         _profile.value = null
+        com.zann.music.data.motion.MotionArtwork.clearCache()
     }
 
     suspend fun playlists(offset: Int = 0, limit: Int = 50): SpotifyPage<SpotifyPlaylistInfo> {
