@@ -1,4 +1,8 @@
 # Changelog
+## 1.9.27
+- Obrolan langsung (chat live) lewat tombol Chat di bilah bawah
+- Perbaikan bilah bawah ganda di beranda
+
 ## 1.9.26
 - Discord: nama aktivitas dan judul lagu tampil sekali saja (tanpa teks ganda); status langsung dihapus lalu sesi ditutup saat pemutaran berhenti; lirik sinkron tampil di status Discord (bisa dimatikan di Pengaturan, Discord)
 - Beranda: tombol refresh di pojok dan tarik untuk menyegarkan

@@ -161,6 +161,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                                 }
 
                                 override fun onPageFinished(view: WebView, url: String?) {
+            view?.evaluateJavascript(ZT_HIDE_BAR_JS, null)
                                     view.evaluateJavascript(CLEANUP_SCRIPT, null)
                                     canGoBack = view.canGoBack()
                                 }
@@ -225,6 +226,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                     }
                 }
             }
+            ZtChatDialog(webView)
             androidx.compose.foundation.layout.Row(
                 Modifier.fillMaxWidth().background(TubeBlack),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly,
@@ -234,8 +236,9 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                     "Shorts" to "https://m.youtube.com/shorts",
                     "Langganan" to "https://m.youtube.com/feed/subscriptions?hl=id",
                     "Anda" to "https://m.youtube.com/feed/you?hl=id",
+                    "Chat" to "zt://chat",
                 ).forEach { (label, url) ->
-                    androidx.compose.material3.TextButton(onClick = { webView?.loadUrl(url) }) {
+                    androidx.compose.material3.TextButton(onClick = { if (url == "zt://chat") ZtChat.open.value = true else webView?.loadUrl(url) }) {
                         Text(label, color = Color.White)
                     }
                 }
