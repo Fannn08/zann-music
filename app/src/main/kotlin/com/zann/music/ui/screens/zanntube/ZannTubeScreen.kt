@@ -138,9 +138,9 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                                 // Without the "; wv" marker YouTube and Google treat this as a normal mobile browser.
                                 userAgentString = userAgentString.replace("; wv", "")
                             }
-                            CookieManager.getInstance().apply {
+                            val wv = this; CookieManager.getInstance().apply {
                                 setAcceptCookie(true)
-                                setAcceptThirdPartyCookies(this@apply, true)
+                                setAcceptThirdPartyCookies(wv, true)
                             }
                             webViewClient = object : WebViewClient() {
                                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
