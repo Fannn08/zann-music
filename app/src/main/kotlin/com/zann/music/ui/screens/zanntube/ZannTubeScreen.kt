@@ -225,6 +225,21 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                     }
                 }
             }
+            androidx.compose.foundation.layout.Row(
+                Modifier.fillMaxWidth().background(TubeBlack),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly,
+            ) {
+                listOf(
+                    "Beranda" to "https://m.youtube.com/?hl=id",
+                    "Shorts" to "https://m.youtube.com/shorts",
+                    "Langganan" to "https://m.youtube.com/feed/subscriptions?hl=id",
+                    "Anda" to "https://m.youtube.com/feed/you?hl=id",
+                ).forEach { (label, url) ->
+                    androidx.compose.material3.TextButton(onClick = { webView?.loadUrl(url) }) {
+                        Text(label, color = Color.White)
+                    }
+                }
+            }
         }
         customView?.let { video ->
             AndroidView(
