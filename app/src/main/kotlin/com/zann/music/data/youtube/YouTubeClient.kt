@@ -246,6 +246,44 @@ object YouTubeClient {
 
     private const val MAX_RADIO_SONG_SEC = 15L * 60
 
+    // Video counterpart of a song: YouTube Music's "song" id is an audio-only upload whose picture is just the
+    // cover, so the music video is a different id. "" in the map means "looked, none found".
+    private val videoCounterparts = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    /** The id of [item]'s official music video, or null when there isn't one (the caller then keeps the song's own id). */
+    suspend fun musicVideoFor(item: SimpleItem): String? = withContext(Dispatchers.IO) {
+        videoCounterparts[item.id]?.let { return@withContext it.ifEmpty { null } }
+        val found = try {
+            findMusicVideo(item) ?: ""
+        } catch (e: Exception) {
+            Log.w(TAG, "Music video lookup failed for ${item.id}", e)
+            return@withContext null // not cached: try again next time
+        }
+        videoCounterparts[item.id] = found
+        found.ifEmpty { null }
+    }
+
+    private fun findMusicVideo(item: SimpleItem): String? {
+        val title = item.title.trim()
+        if (title.isEmpty()) return null
+        val query = "${item.artist} $title".trim()
+        val results = searchBlocking(query, SearchFilter.VIDEOS, null).items.take(8)
+        val wanted = normalize(title)
+        val seconds = if (item.duration > 100_000L) item.duration / 1000 else item.duration
+        val tolerance = maxOf(12L, seconds * 15 / 100)
+        return results
+            .filter { it.id != item.id && normalize(it.title).contains(wanted) }
+            .filter { seconds <= 0 || kotlin.math.abs(it.duration - seconds) <= tolerance }
+            .sortedWith(
+                compareBy<SimpleItem> { if (it.title.contains("official", ignoreCase = true) || it.title.contains("video", ignoreCase = true)) 0 else 1 }
+                    .thenBy { if (seconds > 0) kotlin.math.abs(it.duration - seconds) else 0L }
+            )
+            .firstOrNull()?.id
+    }
+
+    private fun normalize(text: String): String =
+        text.lowercase().replace(Regex("\\(.*?\\)|\\[.*?\\]"), "").filter { it.isLetterOrDigit() }
+
     private fun extractVideoId(url: String): String {
         return when {
             url.contains("v=") -> url.substringAfter("v=").substringBefore("&")

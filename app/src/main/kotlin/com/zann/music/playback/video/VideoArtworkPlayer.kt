@@ -54,6 +54,7 @@ class VideoArtworkPlayer(context: Context) {
 
             override fun onPlayerError(error: PlaybackException) {
                 val id = videoId ?: return
+                android.util.Log.w("VYORA-Video", "Video $id failed (retried=$retried): ${error.errorCodeName}", error)
                 if (retried) return
                 retried = true
                 StreamResolver.invalidate(id)

@@ -1,429 +1,273 @@
 package com.zann.music.ui.screens.zanntube
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.graphics.Bitmap
+import android.net.Uri
+import android.view.View
+import android.view.ViewGroup
+import android.webkit.CookieManager
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Slideshow
-import androidx.compose.material.icons.filled.Subscriptions
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import coil.compose.AsyncImage
-import com.zann.music.data.zanntube.TubePage
-import com.zann.music.data.zanntube.TubeStore
-import com.zann.music.data.zanntube.TubeStreams
-import com.zann.music.data.zanntube.TubeVideo
-import com.zann.music.data.zanntube.ZannTubeRepository
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.zann.music.playback.PlayerManager
-import kotlinx.coroutines.launch
-import org.schabi.newpipe.extractor.Page
 
+private const val HOME_URL = "https://m.youtube.com/?hl=id"
+private val TubeBlack = Color(0xFF0F0F0F)
 private val TubeRed = Color(0xFFFF0033)
 
-/** A paged list of videos: refresh from the start, then load more as the user nears the end. */
-@Stable
-internal class Feed(private val source: suspend (Page?) -> Result<TubePage>, private val keep: (TubeVideo) -> Boolean = { true }) {
-    var items by mutableStateOf<List<TubeVideo>>(emptyList()); private set
-    var loading by mutableStateOf(false); private set
-    var error by mutableStateOf(false); private set
-    private var next: Page? = null
-    val hasMore: Boolean get() = next != null
-
-    suspend fun refresh() {
-        loading = true; error = false
-        source(null).fold(
-            onSuccess = { items = it.items.filter(keep); next = it.next },
-            onFailure = { items = emptyList(); next = null; error = true },
-        )
-        loading = false
-    }
-
-    suspend fun more() {
-        val page = next ?: return
-        if (loading) return
-        loading = true
-        source(page).onSuccess { items = (items + it.items.filter(keep)).distinctBy { v -> v.id }; next = it.next }
-            .onFailure { next = null }
-        loading = false
-    }
-}
-
-private val CHIPS = listOf(
-    "Semua" to null, "Musik" to "musik indonesia terbaru", "Game" to "gameplay game", "Live" to "live streaming",
-    "Berita" to "berita terkini", "Olahraga" to "olahraga highlight", "Film" to "trailer film", "Komedi" to "komedi lucu",
-    "Podcast" to "podcast indonesia", "Belajar" to "tutorial belajar", "Masak" to "resep masakan", "Teknologi" to "review teknologi",
+/** Hosts that stay inside ZannTube (YouTube itself and Google's login/consent pages). */
+private val INTERNAL_HOSTS = listOf(
+    "youtube.com", "youtu.be", "google.com", "gstatic.com", "googleusercontent.com", "ggpht.com", "googlevideo.com",
 )
 
+/**
+ * ZannTube: the real YouTube mobile site (Beranda, Shorts, Langganan, Notifikasi, Anda), with the ad clean-up and
+ * fullscreen player a ReVanced-style client gives you. No NewPipe involved here.
+ */
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun ZannTubeScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    LaunchedEffect(Unit) { TubeStore.init(context) }
-    var tab by rememberSaveable { mutableStateOf(0) }
-    var playing by remember { mutableStateOf<TubeVideo?>(null) }
-    var searching by rememberSaveable { mutableStateOf(false) }
+    val activity = remember(context) { context.findActivity() }
 
-    val video = playing
-    if (video != null) {
-        BackHandler { playing = null }
-        WatchPage(video, onClose = { playing = null }, onPlay = { playing = it })
-        return
-    }
-    BackHandler(enabled = searching) { searching = false }
-    BackHandler(enabled = !searching && tab != 0) { tab = 0 }
+    var webView by remember { mutableStateOf<WebView?>(null) }
+    var canGoBack by remember { mutableStateOf(false) }
+    var progress by remember { mutableIntStateOf(100) }
+    var failed by remember { mutableStateOf(false) }
+    var customView by remember { mutableStateOf<View?>(null) }
+    var customCallback by remember { mutableStateOf<WebChromeClient.CustomViewCallback?>(null) }
+    var musicPausedForVideo by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Box(Modifier.weight(1f).fillMaxWidth()) {
-            when {
-                searching -> SearchPage(onClose = { searching = false }, onPlay = { playing = it })
-                tab == 0 -> HomePage(onBack, onSearch = { searching = true }, onPlay = { playing = it })
-                tab == 1 -> ShortsPage()
-                tab == 2 -> SubscriptionsPage(onPlay = { playing = it })
-                else -> YouPage(onPlay = { playing = it })
-            }
-        }
-        if (!searching) NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
-            val tabs = listOf("Beranda" to Icons.Default.Home, "Shorts" to Icons.Default.Slideshow, "Langganan" to Icons.Default.Subscriptions, "Anda" to Icons.Default.AccountCircle)
-            tabs.forEachIndexed { i, (label, icon) ->
-                NavigationBarItem(selected = tab == i, onClick = { tab = i }, icon = { Icon(icon, null) }, label = { Text(label, fontSize = 11.sp) })
-            }
-        }
-    }
-}
-
-@Composable
-private fun Logo(modifier: Modifier = Modifier) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(width = 30.dp, height = 21.dp).clip(RoundedCornerShape(6.dp)).background(TubeRed), contentAlignment = Alignment.Center) {
-            Icon(Icons.Default.PlayArrow, null, tint = Color.White, modifier = Modifier.size(16.dp))
-        }
-        Text("ZannTube", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(start = 6.dp))
-    }
-}
-
-@Composable
-private fun FeedList(feed: Feed, onPlay: (TubeVideo) -> Unit, header: (@Composable () -> Unit)? = null, empty: String = "Tidak ada video") {
-    val state = rememberLazyListState()
-    val nearEnd by remember { derivedStateOf { val last = state.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0; feed.items.isNotEmpty() && last >= feed.items.lastIndex - 3 } }
-    LaunchedEffect(nearEnd) { if (nearEnd && feed.hasMore && !feed.loading) feed.more() }
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn(state = state, modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            if (header != null) item(key = "header") { header() }
-            items(feed.items, key = { it.id }) { VideoCard(it) { onPlay(it) } }
-            if (feed.loading && feed.items.isNotEmpty()) item(key = "more") {
-                Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(24.dp), color = TubeRed) }
-            }
-        }
-        if (feed.loading && feed.items.isEmpty()) CircularProgressIndicator(Modifier.align(Alignment.Center), color = TubeRed)
-        if (!feed.loading && feed.items.isEmpty()) Text(if (feed.error) "Gagal memuat. Periksa koneksi." else empty, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.align(Alignment.Center))
-    }
-}
-
-@Composable
-private fun HomePage(onBack: () -> Unit, onSearch: () -> Unit, onPlay: (TubeVideo) -> Unit) {
-    var chip by rememberSaveable { mutableStateOf(0) }
-    val query = CHIPS[chip].second
-    val feed = remember(chip) {
-        Feed({ page -> if (query == null) ZannTubeRepository.trending(page) else ZannTubeRepository.search(query, page) }, keep = { it.durationSec > 60L || it.isLive })
-    }
-    LaunchedEffect(feed) { feed.refresh() }
-    Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, top = 6.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-            Logo(Modifier.weight(1f))
-            IconButton(onClick = onSearch) { Icon(Icons.Default.Search, null) }
-        }
-        LazyRow(Modifier.padding(bottom = 10.dp), contentPadding = contentPaddingValues(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(CHIPS.size) { i ->
-                val on = i == chip
-                Text(
-                    CHIPS[i].first, fontSize = 14.sp, fontWeight = FontWeight.Medium,
-                    color = if (on) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.clip(RoundedCornerShape(10.dp))
-                        .background(if (on) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
-                        .clickable { chip = i }.padding(horizontal = 14.dp, vertical = 8.dp),
-                )
-            }
-        }
-        FeedList(feed, onPlay)
-    }
-}
-
-@Composable
-private fun contentPaddingValues() = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp)
-
-@Composable
-private fun SearchPage(onClose: () -> Unit, onPlay: (TubeVideo) -> Unit) {
-    var text by rememberSaveable { mutableStateOf("") }
-    var submitted by rememberSaveable { mutableStateOf("") }
-    val feed = remember(submitted) { Feed({ page -> ZannTubeRepository.search(submitted, page) }) }
-    LaunchedEffect(feed) { if (submitted.isNotBlank()) feed.refresh() }
-    Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onClose) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-            TextField(
-                value = text, onValueChange = { text = it }, singleLine = true, placeholder = { Text("Telusuri ZannTube") },
-                modifier = Modifier.weight(1f), shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { submitted = text.trim() }),
-            )
-            IconButton(onClick = { submitted = text.trim() }) { Icon(Icons.Default.Search, null) }
-        }
-        if (submitted.isBlank()) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Cari video apa saja", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) }
-        else FeedList(feed, onPlay)
-    }
-}
-
-@Composable
-private fun SubscriptionsPage(onPlay: (TubeVideo) -> Unit) {
-    val subs by TubeStore.subscriptions.collectAsState()
-    val feed = remember(subs) {
-        Feed({ page ->
-            if (page != null || subs.isEmpty()) Result.success(TubePage(emptyList(), null))
-            else runCatching {
-                // Newest-looking videos of every followed channel, interleaved so no channel crowds the rest.
-                val lists = subs.map { name -> ZannTubeRepository.search(name).getOrNull()?.items.orEmpty().filter { it.channel.equals(name, ignoreCase = true) } }
-                val merged = mutableListOf<TubeVideo>()
-                var i = 0
-                while (lists.any { i < it.size }) { lists.forEach { l -> l.getOrNull(i)?.let(merged::add) }; i++ }
-                TubePage(merged, null)
-            }
-        })
-    }
-    LaunchedEffect(feed) { feed.refresh() }
-    Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) { Logo(Modifier.weight(1f)) }
-        if (subs.isNotEmpty()) LazyRow(Modifier.padding(bottom = 12.dp), contentPadding = contentPaddingValues(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            items(subs, key = { it }) { name ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width72()) {
-                    Avatar(null, name, 56)
-                    Text(name, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(top = 4.dp))
-                }
-            }
-        }
-        FeedList(feed, onPlay, empty = "Belum ada channel yang diikuti.\nBuka video lalu tekan Berlangganan.")
-    }
-}
-
-private fun Modifier.width72() = this.then(Modifier.size(width = 72.dp, height = 90.dp))
-
-@Composable
-private fun YouPage(onPlay: (TubeVideo) -> Unit) {
-    val history by TubeStore.history.collectAsState()
-    Column(Modifier.fillMaxSize().statusBarsPadding()) {
-        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Riwayat", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
-            if (history.isNotEmpty()) Text("Hapus", color = TubeRed, modifier = Modifier.clickable { TubeStore.clearHistory() }.padding(8.dp))
-        }
-        if (history.isEmpty()) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Belum ada riwayat tontonan", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)) }
-        else LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) { items(history, key = { it.id }) { VideoCard(it) { onPlay(it) } } }
-    }
-}
-
-@Composable
-private fun Avatar(url: String?, name: String, size: Int) {
-    Box(Modifier.size(size.dp).clip(CircleShape).background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
-        if (url != null) AsyncImage(model = url, contentDescription = name, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
-        else Text(name.take(1).uppercase(), color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
-    }
-}
-
-@Composable
-internal fun VideoCard(video: TubeVideo, onClick: () -> Unit) {
-    Column(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Box {
-            AsyncImage(model = video.thumbnail, contentDescription = video.title, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color(0xFF222222)))
-            Text(
-                if (video.isLive) "LIVE" else clock(video.durationSec * 1000L), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp).clip(RoundedCornerShape(4.dp)).background(if (video.isLive) TubeRed else Color(0xCC000000)).padding(horizontal = 5.dp, vertical = 2.dp),
-            )
-        }
-        Row(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.Top) {
-            Avatar(video.avatar, video.channel, 38)
-            Column(Modifier.padding(start = 12.dp)) {
-                Text(video.title, maxLines = 2, overflow = TextOverflow.Ellipsis, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
-                val meta = listOfNotNull(video.channel.takeIf { it.isNotBlank() }, viewsText(video.views), video.uploaded.takeIf { it.isNotBlank() }).joinToString(" · ")
-                Text(meta, maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.padding(top = 3.dp))
-            }
-        }
-    }
-}
-
-internal fun viewsText(count: Long): String? = when {
-    count < 0 -> null
-    count >= 1_000_000_000 -> "%.1f mi x ditonton".format(count / 1e9)
-    count >= 1_000_000 -> "%.1f jt x ditonton".format(count / 1e6)
-    count >= 1_000 -> "%.1f rb x ditonton".format(count / 1e3)
-    else -> "$count x ditonton"
-}
-
-@Composable
-private fun WatchPage(video: TubeVideo, onClose: () -> Unit, onPlay: (TubeVideo) -> Unit) {
-    var streams by remember(video.id) { mutableStateOf<TubeStreams?>(null) }
-    var failed by remember(video.id) { mutableStateOf(false) }
-    var attempt by remember(video.id) { mutableStateOf(0) }
-    var height by rememberSaveable(video.id) { mutableStateOf(1080) }
-    var fullscreen by rememberSaveable { mutableStateOf(false) }
-    val subs by TubeStore.subscriptions.collectAsState()
-
-    LaunchedEffect(video.id) { PlayerManager.pause(); TubeStore.addHistory(video) }
-    LaunchedEffect(video.id, attempt) {
-        failed = false
-        ZannTubeRepository.streams(video.id).fold(onSuccess = { streams = it }, onFailure = { failed = true })
-    }
-    FullscreenEffect(fullscreen)
-    BackHandler(enabled = fullscreen) { fullscreen = false }
-
-    val player: @Composable (Modifier) -> Unit = { m ->
-        TubePlayer(video.id, streams, height, { height = it }, fullscreen, { fullscreen = it }, onClose, { attempt++ }, m)
-    }
-    if (fullscreen) {
-        player(Modifier.fillMaxSize())
-        return
-    }
-    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        player(Modifier.statusBarsPadding().fillMaxWidth().aspectRatio(16f / 9f))
-        LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            item(key = "info") {
-                Column(Modifier.padding(12.dp)) {
-                    Text(streams?.title?.ifBlank { null } ?: video.title, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
-                    val meta = listOfNotNull(viewsText(streams?.views ?: video.views), (streams?.uploaded ?: video.uploaded).takeIf { it.isNotBlank() }).joinToString(" · ")
-                    Text(meta, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.padding(top = 4.dp))
-                    val channel = streams?.channel?.ifBlank { null } ?: video.channel
-                    Row(Modifier.fillMaxWidth().padding(top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Avatar(video.avatar, channel, 40)
-                        Text(channel, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f).padding(horizontal = 10.dp))
-                        val on = channel in subs
-                        Text(
-                            if (on) "Diikuti" else "Berlangganan", fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
-                            color = if (on) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.background,
-                            modifier = Modifier.clip(RoundedCornerShape(20.dp))
-                                .background(if (on) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f) else MaterialTheme.colorScheme.onSurface)
-                                .clickable { TubeStore.toggleSubscription(channel) }.padding(horizontal = 16.dp, vertical = 9.dp),
-                        )
-                    }
-                    if (failed) Text("Gagal memuat video. Ketuk untuk coba lagi.", color = TubeRed, modifier = Modifier.padding(top = 12.dp).clickable { attempt++ })
-                }
-            }
-            items(streams?.related.orEmpty(), key = { it.id }) { VideoCard(it) { onPlay(it) } }
-        }
-    }
-}
-
-/** Vertical, swipe-up Shorts: one short plays at a time, looping, with its audio. */
-@Composable
-private fun ShortsPage() {
-    val queries = remember { listOf("shorts", "short lucu", "shorts viral indonesia", "shorts musik") }
-    val feed = remember {
-        Feed({ page -> ZannTubeRepository.search(queries.random(), page) }, keep = { it.durationSec in 1L..60L })
-    }
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(feed) {
-        feed.refresh()
-        var guard = 0
-        while (feed.items.size < 6 && feed.hasMore && guard++ < 3) feed.more()
-    }
-    Box(Modifier.fillMaxSize().background(Color.Black)) {
-        if (feed.items.isEmpty()) {
-            if (feed.loading) CircularProgressIndicator(Modifier.align(Alignment.Center), color = TubeRed)
-            else Text("Shorts tidak tersedia. Tarik ulang nanti.", color = Color.White, modifier = Modifier.align(Alignment.Center).clickable { scope.launch { feed.refresh() } }.padding(16.dp))
+    fun setFullscreen(on: Boolean) {
+        val act = activity ?: return
+        val controller = WindowInsetsControllerCompat(act.window, act.window.decorView)
+        if (on) {
+            act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            WindowCompat.setDecorFitsSystemWindows(act.window, false)
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
         } else {
-            val pager = rememberPagerState { feed.items.size }
-            LaunchedEffect(pager.currentPage) {
-                if (pager.currentPage >= feed.items.size - 3 && !feed.loading) {
-                    feed.more()
-                    if (feed.items.size - pager.currentPage < 4 && feed.hasMore) feed.more()
+            act.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            controller.show(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+
+    fun exitFullscreen() {
+        customCallback?.onCustomViewHidden()
+        customCallback = null
+        customView = null
+        setFullscreen(false)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            if (customView != null) setFullscreen(false)
+            CookieManager.getInstance().flush()
+        }
+    }
+
+    BackHandler {
+        val web = webView
+        when {
+            customView != null -> exitFullscreen()
+            web != null && web.canGoBack() -> web.goBack()
+            else -> onBack()
+        }
+    }
+
+    Box(Modifier.fillMaxSize().background(TubeBlack)) {
+        Column(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
+            if (progress < 100) {
+                Box(Modifier.fillMaxWidth(progress / 100f).height(2.dp).background(TubeRed))
+            } else {
+                Box(Modifier.height(2.dp))
+            }
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { ctx ->
+                        WebView(ctx).apply {
+                            layoutParams = ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,
+                            )
+                            setBackgroundColor(android.graphics.Color.parseColor("#0F0F0F"))
+                            settings.apply {
+                                javaScriptEnabled = true
+                                domStorageEnabled = true
+                                databaseEnabled = true
+                                mediaPlaybackRequiresUserGesture = false
+                                loadWithOverviewMode = true
+                                useWideViewPort = true
+                                setSupportMultipleWindows(false)
+                                // Without the "; wv" marker YouTube and Google treat this as a normal mobile browser.
+                                userAgentString = userAgentString.replace("; wv", "")
+                            }
+                            CookieManager.getInstance().apply {
+                                setAcceptCookie(true)
+                                setAcceptThirdPartyCookies(this@apply, true)
+                            }
+                            webViewClient = object : WebViewClient() {
+                                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                                    val uri = request.url
+                                    val scheme = uri.scheme.orEmpty()
+                                    if (scheme != "http" && scheme != "https") {
+                                        // intent:// "open in the YouTube app" and friends stay out.
+                                        return true
+                                    }
+                                    val host = uri.host.orEmpty()
+                                    if (INTERNAL_HOSTS.any { host == it || host.endsWith(".$it") }) return false
+                                    runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, uri).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                                    return true
+                                }
+
+                                override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+                                    failed = false
+                                }
+
+                                override fun onPageFinished(view: WebView, url: String?) {
+                                    view.evaluateJavascript(CLEANUP_SCRIPT, null)
+                                    canGoBack = view.canGoBack()
+                                }
+
+                                override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
+                                    canGoBack = view.canGoBack()
+                                    view.evaluateJavascript(CLEANUP_SCRIPT, null)
+                                    // A video is about to play here: the music steps aside instead of talking over it.
+                                    val watching = url?.contains("/watch") == true || url?.contains("/shorts/") == true
+                                    if (watching && !musicPausedForVideo) {
+                                        musicPausedForVideo = true
+                                        PlayerManager.pause()
+                                    } else if (!watching) {
+                                        musicPausedForVideo = false
+                                    }
+                                }
+
+                                override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+                                    if (request.isForMainFrame) failed = true
+                                }
+                            }
+                            webChromeClient = object : WebChromeClient() {
+                                override fun onProgressChanged(view: WebView, newProgress: Int) {
+                                    progress = newProgress
+                                }
+
+                                override fun onShowCustomView(view: View, callback: CustomViewCallback) {
+                                    customCallback?.onCustomViewHidden()
+                                    customView = view
+                                    customCallback = callback
+                                    setFullscreen(true)
+                                }
+
+                                override fun onHideCustomView() {
+                                    customView = null
+                                    customCallback = null
+                                    setFullscreen(false)
+                                }
+                            }
+                            loadUrl(HOME_URL)
+                            webView = this
+                        }
+                    },
+                    onRelease = { view ->
+                        view.stopLoading()
+                        view.loadUrl("about:blank")
+                        view.destroy()
+                        if (webView === view) webView = null
+                    },
+                )
+                if (failed) {
+                    Column(
+                        Modifier.fillMaxSize().background(TubeBlack).padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+                    ) {
+                        Text("Tidak bisa membuka YouTube. Cek koneksi internetmu.", color = Color.White, textAlign = TextAlign.Center)
+                        Button(
+                            onClick = { failed = false; webView?.reload() },
+                            modifier = Modifier.padding(top = 16.dp),
+                        ) { Text("Coba lagi") }
+                    }
                 }
             }
-            VerticalPager(pager, Modifier.fillMaxSize(), key = { feed.items[it].id }) { page ->
-                ShortItem(feed.items[page], active = pager.currentPage == page)
-            }
+        }
+        customView?.let { video ->
+            AndroidView(
+                modifier = Modifier.fillMaxSize().background(Color.Black),
+                factory = { video },
+            )
         }
     }
 }
 
-@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-@Composable
-private fun ShortItem(video: TubeVideo, active: Boolean) {
-    val context = LocalContext.current
-    Box(Modifier.fillMaxSize().background(Color.Black)) {
-        AsyncImage(model = video.thumbnail, contentDescription = null, contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize())
-        if (active) {
-            val exo = remember(video.id) { newTubePlayer(context).apply { repeatMode = androidx.media3.common.Player.REPEAT_MODE_ONE } }
-            var paused by remember(video.id) { mutableStateOf(false) }
-            androidx.compose.runtime.DisposableEffect(exo) { onDispose { exo.release() } }
-            LaunchedEffect(video.id) {
-                PlayerManager.pause()
-                ZannTubeRepository.streams(video.id).onSuccess { s ->
-                    tubeSource(s, 720)?.let { exo.setMediaSource(it); exo.prepare(); exo.playWhenReady = true }
-                }
-            }
-            AndroidView(
-                factory = { ctx -> android.view.TextureView(ctx).also { exo.setVideoTextureView(it) } },
-                onRelease = { exo.clearVideoSurface() },
-                modifier = Modifier.fillMaxSize().clickable(indication = null, interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }) {
-                    paused = !paused; exo.playWhenReady = !paused
-                },
-            )
-        }
-        Column(Modifier.align(Alignment.BottomStart).padding(16.dp)) {
-            Text(video.channel, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-            Text(video.title, color = Color.White, fontSize = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 4.dp))
-        }
-    }
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
+
+/**
+ * Runs on every page: hides ad slots and Premium nags, and skips video ads the moment they show
+ * (jump to the end of the ad, press "Lewati"). Installed once per page; the timer survives YouTube's in-page navigation.
+ */
+private const val CLEANUP_SCRIPT = """
+(function () {
+  if (window.__zannTube) return;
+  window.__zannTube = true;
+  var css = [
+    'ytm-promoted-sparkles-web-renderer', 'ytm-promoted-video-renderer', 'ytm-companion-slot',
+    'ytm-ad-slot-renderer', 'ad-slot-renderer', 'ytm-in-feed-ad-layout-renderer',
+    'ytm-statement-banner-renderer', 'ytm-brand-video-singleton-renderer', 'ytm-banner-promo-renderer',
+    'ytm-mealbar-promo-renderer', 'ytm-upsell-dialog-renderer', '#player-ads', '.ytp-ad-overlay-container',
+    '.ytp-ad-module', '.video-ads'
+  ].join(',') + '{display:none !important;}';
+  var style = document.createElement('style');
+  style.textContent = css;
+  (document.head || document.documentElement).appendChild(style);
+  setInterval(function () {
+    try {
+      var player = document.querySelector('#movie_player.ad-showing, .html5-video-player.ad-showing');
+      if (!player) return;
+      var skip = document.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .ytp-ad-skip-button-container button');
+      if (skip) skip.click();
+      var v = document.querySelector('video');
+      if (v && isFinite(v.duration) && v.duration > 0) v.currentTime = v.duration;
+    } catch (e) {}
+  }, 400);
+})();
+"""

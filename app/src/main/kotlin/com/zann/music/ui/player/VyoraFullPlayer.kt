@@ -299,7 +299,17 @@ private fun FullPlayerContent(sheet: PlayerSheetState) {
     val videoItem = currentItem?.takeIf {
         (musicVideoOn && it.isYouTube) || (it.isVideo && VideoArtworkPlayer.allowed(context, appSettings.videoArtwork))
     }
-    val videoId = videoItem?.id?.takeIf { sheet.isVisible }
+    // A YouTube Music "song" is audio over its cover; the toggle should show the real clip, so look up the
+    // video counterpart first. While the lookup runs the cover stays; with no clip found the song's own id is used.
+    val counterpart by androidx.compose.runtime.produceState<Pair<String, String?>?>(null, videoItem?.id, videoItem?.isVideo) {
+        val item = videoItem
+        value = null
+        if (item != null && !item.isVideo) value = item.id to com.zann.music.data.youtube.YouTubeClient.musicVideoFor(item)
+    }
+    val videoSourceId = videoItem?.let { item ->
+        if (item.isVideo) item.id else counterpart?.takeIf { it.first == item.id }?.let { it.second ?: item.id }
+    }
+    val videoId = videoSourceId?.takeIf { sheet.isVisible }
     val coverTint by rememberArtworkTint(thumbnail)
     val videoTint by VideoAmbience.tint.collectAsState()
     val videoFrame by VideoAmbience.frame.collectAsState()

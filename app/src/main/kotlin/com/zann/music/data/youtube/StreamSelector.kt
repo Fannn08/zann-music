@@ -57,7 +57,9 @@ object StreamSelector {
     }
 
     fun pickVideo(all: List<VideoCandidate>, maxHeight: Int = VIDEO_MAX_HEIGHT): VideoCandidate? {
-        val playable = all.filter { it.progressive && it.url.isNotBlank() && it.height in 1..maxHeight }
+        val usable = all.filter { it.progressive && it.url.isNotBlank() && it.height > 0 }
+        // Nothing at or under the cap: take the smallest rendition there is rather than no video at all.
+        val playable = usable.filter { it.height <= maxHeight }.ifEmpty { listOfNotNull(usable.minByOrNull { it.height }) }
         if (playable.isEmpty()) return null
         return playable.sortedWith(
             compareBy<VideoCandidate> { it.codecRank }.thenBy { it.height }.thenBy { -it.bitrate }
