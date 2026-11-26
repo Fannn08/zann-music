@@ -659,4 +659,8 @@
     <string name="motion_artwork_footer">Lagu yang punya cover animasi (Apple Music) atau Canvas (Spotify, saat masuk) akan memutarnya tanpa suara di layar Sedang Diputar. Loop disimpan di cache, dan versi yang lebih ringan dipakai saat memakai data seluler.</string>
     <string name="about_developer">Pengembang</string>
     <string name="about_social">Media sosial</string>
+    <string name="discord_lyrics">Lirik di status</string>
+    <string name="discord_lyrics_sub">Tampilkan baris lirik yang sedang dinyanyikan di aktivitas Discord</string>
+    <string name="refresh">Segarkan</string>
+    <string name="music_video">Video musik</string>
 </resources>

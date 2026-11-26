@@ -35,6 +35,8 @@ data class PresenceTrack(
     val artistArtworkUrl: String? = null,
     val youtubeId: String? = null,
     val paused: Boolean = false,
+    /** Current synced lyric line; shown as the activity state when the lyrics option is on. */
+    val lyric: String? = null,
 )
 
 enum class DiscordStatus { OFF, CONNECTING, CONNECTED, AUTH_FAILED, ERROR }
@@ -46,11 +48,12 @@ enum class DiscordStatus { OFF, CONNECTING, CONNECTED, AUTH_FAILED, ERROR }
  * (registered through the application's external-assets endpoint), playback timestamps and buttons.
  */
 object DiscordPresence {
-    private const val TAG = "VYORA-Discord"
+    private const val TAG = "ZANN-Discord"
+    private const val APP_NAME = "ZANN MUSIC"
     private const val GATEWAY = "wss://gateway.discord.gg/?v=9&encoding=json"
     private const val API = "https://discord.com/api/v10"
     private const val SEND_DELAY_MS = 1_200L
-    private const val IDLE_DISCONNECT_MS = 10 * 60_000L
+    private const val CLEAR_GRACE_MS = 1_500L
     private const val GET_VYORA_URL = "https://github.com/Fannn08/zann-music"
     private val NON_RESUMABLE = setOf(4004, 4010, 4011, 4012, 4013, 4014)
 
@@ -96,11 +99,29 @@ object DiscordPresence {
                 idleJob?.cancel()
                 idleJob = null
                 if (socket == null && connectJob?.isActive != true) connectLocked()
+                scheduleSendLocked()
             } else {
-                if (socket == null) return
-                scheduleIdleDisconnectLocked()
+                clearNowLocked()
             }
-            scheduleSendLocked()
+        }
+    }
+
+    /**
+     * Playback stopped: wipe the activity right away (no debounce), then drop the gateway session so
+     * Discord can never keep a stale status. If the socket is not ready there is nothing to wipe.
+     */
+    private fun clearNowLocked() {
+        sendJob?.cancel()
+        idleJob?.cancel()
+        idleJob = null
+        if (socket == null || !ready) {
+            disconnectLocked()
+            return
+        }
+        sendJob = scope.launch {
+            sendPresence(force = true)
+            delay(CLEAR_GRACE_MS)
+            synchronized(lock) { if (wanted == null) disconnectLocked() }
         }
     }
 
@@ -159,14 +180,6 @@ object DiscordPresence {
         if (_status.value != DiscordStatus.AUTH_FAILED || !enabled) _status.value = DiscordStatus.OFF
     }
 
-    private fun scheduleIdleDisconnectLocked() {
-        if (idleJob?.isActive == true) return
-        idleJob = scope.launch {
-            delay(IDLE_DISCONNECT_MS)
-            synchronized(lock) { if (wanted == null) disconnectLocked() }
-        }
-    }
-
     private fun scheduleSendLocked() {
         sendJob?.cancel()
         sendJob = scope.launch {
@@ -175,14 +188,14 @@ object DiscordPresence {
         }
     }
 
-    private suspend fun sendPresence() {
+    private suspend fun sendPresence(force: Boolean = false) {
         val (track, access) = synchronized(lock) {
             if (socket == null || !ready) return
             wanted to token
         }
         val settings = SettingsRepository.current
-        val key = track?.let { "$it|${settings.discordButtons}|${settings.discordStatus}|${settings.discordActivity}" } ?: "none"
-        if (key == synchronized(lock) { sentKey }) return
+        val key = track?.let { "$it|${settings.discordButtons}|${settings.discordStatus}|${settings.discordActivity}|${settings.discordLyrics}" } ?: "none"
+        if (!force && key == synchronized(lock) { sentKey }) return
         val activities = JSONArray()
         if (track != null) {
             val large = access?.let { resolveImage(it, track.artworkUrl) }
@@ -212,12 +225,17 @@ object DiscordPresence {
         largeImage: String? = null,
         smallImage: String? = null,
     ): JSONObject {
+        val artist = track.artist.ifBlank { APP_NAME }
+        val lyric = track.lyric?.trim()?.takeIf { settings.discordLyrics && it.isNotEmpty() && !track.paused }
+        // The activity name is the app, shown once ("Listening to ZANN MUSIC"); the song title lives only in
+        // `details`, so nothing else in the card repeats it.
+        val state = (lyric ?: artist).takeIf { !it.equals(track.title.trim(), ignoreCase = true) } ?: artist
         val json = JSONObject()
-            .put("name", "ZANN MUSIC")
+            .put("name", APP_NAME)
             .put("type", settings.discordActivity.wire)
             .put("application_id", applicationId)
             .put("details", fit(track.title))
-            .put("state", fit(track.artist.ifBlank { "ZANN MUSIC" }))
+            .put("state", fit(state))
             .put("platform", "android")
         val timestamps = JSONObject()
         if (!track.paused) {
@@ -228,13 +246,14 @@ object DiscordPresence {
 
         val assets = JSONObject()
         largeImage?.let { assets.put("large_image", it) }
-        assets.put("large_text", fit(track.album.ifBlank { track.title }))
+        val albumText = track.album.trim().takeIf { it.isNotEmpty() && !it.equals(track.title.trim(), ignoreCase = true) }
+        albumText?.let { assets.put("large_text", fit(it)) }
         if (track.paused) {
             assets.put("small_text", "Paused")
             (smallImage ?: largeImage)?.let { assets.put("small_image", it) }
         } else if (smallImage != null) {
             assets.put("small_image", smallImage)
-            assets.put("small_text", fit("${track.artist.ifBlank { "ZANN MUSIC" }} on ZANN MUSIC"))
+            assets.put("small_text", fit(artist))
         }
         json.put("assets", assets)
 

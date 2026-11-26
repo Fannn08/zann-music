@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.Podcasts
 import androidx.compose.material.icons.filled.Refresh
@@ -130,6 +131,14 @@ fun DiscordScreen(onBack: () -> Unit) {
                         checked = settings.discordShowPaused,
                         enabled = settings.discordPresence,
                         onCheckedChange = { v -> change { it.copy(discordShowPaused = v) } },
+                    )
+                    SettingsSwitchRow(
+                        title = stringResource(R.string.discord_lyrics),
+                        subtitle = stringResource(R.string.discord_lyrics_sub),
+                        icon = Icons.Default.Lyrics, iconTint = SystemColors.Pink,
+                        checked = settings.discordLyrics,
+                        enabled = settings.discordPresence,
+                        onCheckedChange = { v -> change { it.copy(discordLyrics = v) } },
                     )
                     SettingsSwitchRow(
                         title = stringResource(R.string.discord_buttons),

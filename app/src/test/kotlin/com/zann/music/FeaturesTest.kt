@@ -77,6 +77,16 @@ class FeaturesTest {
         assertEquals(128, long.getString("details").length)
     }
 
+    @Test fun discordActivityShowsTitleOnceAndLyric() {
+        val a = DiscordPresence.activity(PresenceTrack("Teh Hijau", "Tulus", 0L, 0L, album = "Teh Hijau", lyric = "baris lirik"))
+        assertEquals("ZANN MUSIC", a.getString("name"))
+        assertEquals("Teh Hijau", a.getString("details"))
+        assertEquals("baris lirik", a.getString("state"))
+        assertFalse(a.getJSONObject("assets").has("large_text"))
+        val off = DiscordPresence.activity(PresenceTrack("Teh Hijau", "Tulus", 0L, 0L, lyric = "baris lirik"), com.zann.music.data.settings.AppSettings(discordLyrics = false))
+        assertEquals("Tulus", off.getString("state"))
+    }
+
     @Test fun lyricsCardRenders() {
         val art = Bitmap.createBitmap(600, 600, Bitmap.Config.ARGB_8888)
         Canvas(art).drawRect(0f, 0f, 600f, 600f, Paint().apply {

@@ -58,6 +58,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Lyrics
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.runtime.getValue
@@ -296,6 +297,11 @@ fun SettingsScreen(onBack: () -> Unit, onOpen: (String) -> Unit) {
                     icon = Icons.Default.MusicNote, iconTint = Color(0xFF1DB954),
                     value = spotify?.name ?: stringResource(R.string.off),
                     onClick = { onOpen("spotify") },
+                )
+                SettingsNavRow(
+                    title = "ZannTube",
+                    icon = Icons.Default.PlayArrow, iconTint = Color(0xFFFF0033),
+                    onClick = { onOpen("zanntube") },
                 )
                 SettingsNavRow(
                     title = stringResource(R.string.discord_title),

@@ -92,6 +92,7 @@ import androidx.compose.material.icons.filled.FastForward
 import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Lyrics
+import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.MusicNote
@@ -294,7 +295,10 @@ private fun FullPlayerContent(sheet: PlayerSheetState) {
     var sleepMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val videoItem = currentItem?.takeIf { it.isVideo && VideoArtworkPlayer.allowed(context, appSettings.videoArtwork) }
+    val musicVideoOn by PlayerManager.musicVideo.collectAsState()
+    val videoItem = currentItem?.takeIf {
+        (musicVideoOn && it.isYouTube) || (it.isVideo && VideoArtworkPlayer.allowed(context, appSettings.videoArtwork))
+    }
     val videoId = videoItem?.id?.takeIf { sheet.isVisible }
     val coverTint by rememberArtworkTint(thumbnail)
     val videoTint by VideoAmbience.tint.collectAsState()
@@ -593,6 +597,11 @@ private fun PlayerBottomToggles(
         var speedDialog by remember { mutableStateOf(false) }
         SpeedToggle(speed, speedActive) { speedDialog = true }
         if (speedDialog) SoundSheet(onDismiss = { speedDialog = false })
+        val videoOn by PlayerManager.musicVideo.collectAsState()
+        BottomToggle(Icons.Default.Videocam, stringResource(R.string.music_video), videoOn) {
+            PlayerManager.musicVideo.value = !videoOn
+            onMode(MODE_ART)
+        }
         BottomToggle(Icons.AutoMirrored.Filled.QueueMusic, stringResource(R.string.queue), mode == MODE_QUEUE) {
             onMode(if (mode == MODE_QUEUE) MODE_ART else MODE_QUEUE)
         }

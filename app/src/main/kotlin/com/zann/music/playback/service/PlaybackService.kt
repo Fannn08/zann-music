@@ -84,6 +84,65 @@ class PlaybackService : MediaLibraryService() {
         val repeatMode: Int,
     )
 
+    // Lyric line shown on Discord: loaded per track, then followed by a light ticker while playing.
+    private var presenceLyrics: com.zann.music.data.lyrics.Lyrics? = null
+    private var presenceLyricsFor: String? = null
+    private var presenceLyricJob: kotlinx.coroutines.Job? = null
+    private var presenceLyricLine: String? = null
+    private var presenceLyricPushedAt = 0L
+
+    private fun currentLyricLine(p: Player): String? {
+        val lines = presenceLyrics?.synced ?: return null
+        if (lines.isEmpty() || presenceLyricsFor != p.currentMediaItem?.mediaId) return null
+        val pos = p.currentPosition
+        val line = lines.lastOrNull { it.timeMs <= pos } ?: return null
+        // A line that ended long ago (instrumental gap) is dropped instead of hanging on the status.
+        if (line.endMs > 0 && pos > line.endMs + 6_000L) return null
+        return line.text.trim().takeIf { it.isNotEmpty() }
+    }
+
+    private fun syncPresenceLyrics(p: Player) {
+        val item = p.currentMediaItem
+        val id = item?.mediaId
+        if (id == null || !SettingsRepository.current.discordPresence || !SettingsRepository.current.discordLyrics) {
+            presenceLyricJob?.cancel()
+            presenceLyrics = null
+            presenceLyricsFor = null
+            presenceLyricLine = null
+            return
+        }
+        if (presenceLyricsFor != id) {
+            presenceLyricJob?.cancel()
+            presenceLyrics = null
+            presenceLyricLine = null
+            presenceLyricsFor = id
+            val md = item.mediaMetadata
+            val durationSec = (p.duration.takeIf { it != C.TIME_UNSET && it > 0 } ?: 0L) / 1000L
+            presenceLyricJob = scope.launch {
+                presenceLyrics = runCatching {
+                    com.zann.music.data.lyrics.LyricsRepository.lyricsFor(
+                        id, md.title?.toString().orEmpty(), md.artist?.toString().orEmpty(), durationSec,
+                    )
+                }.getOrNull()
+                while (isActive) {
+                    val pl = active
+                    if (pl.currentMediaItem?.mediaId != id) break
+                    if (pl.isPlaying) {
+                        val line = currentLyricLine(pl)
+                        val now = System.currentTimeMillis()
+                        // Discord rate-limits presence updates, so lines change at most every 3 s.
+                        if (line != presenceLyricLine && now - presenceLyricPushedAt >= 3_000L) {
+                            presenceLyricLine = line
+                            presenceLyricPushedAt = now
+                            pushPresence(pl)
+                        }
+                    }
+                    delay(500L)
+                }
+            }
+        }
+    }
+
     private val presenceListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
             if (events.containsAny(
@@ -385,9 +444,14 @@ class PlaybackService : MediaLibraryService() {
             (p.playbackState == Player.STATE_READY || p.playbackState == Player.STATE_BUFFERING)
         val paused = !p.playWhenReady && p.playbackState != Player.STATE_IDLE && p.playbackState != Player.STATE_ENDED
         if (item == null || (!playing && !paused)) {
+            presenceLyricJob?.cancel()
+            presenceLyricsFor = null
+            presenceLyrics = null
+            presenceLyricLine = null
             DiscordPresence.update(null)
             return
         }
+        syncPresenceLyrics(p)
         val md = item.mediaMetadata
         val now = System.currentTimeMillis()
         val started = now - p.currentPosition.coerceAtLeast(0L)
@@ -407,6 +471,7 @@ class PlaybackService : MediaLibraryService() {
                 artworkUrl = artwork,
                 youtubeId = id.takeIf { youtube },
                 paused = paused,
+                lyric = presenceLyricLine,
             )
         )
     }
@@ -651,6 +716,7 @@ class PlaybackService : MediaLibraryService() {
         crossfader.release()
         scope.cancel()
         AudioEffects.release()
+        presenceLyricJob?.cancel()
         DiscordPresence.stop()
         holdCastLocks(false)
         CastProxy.stop()

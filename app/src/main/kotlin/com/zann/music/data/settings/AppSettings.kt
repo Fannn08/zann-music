@@ -198,6 +198,7 @@ data class AppSettings(
     val discordPresence: Boolean = false,
     val discordButtons: Boolean = true,
     val discordShowPaused: Boolean = true,
+    val discordLyrics: Boolean = true,
     val discordStatus: DiscordOnlineStatus = DiscordOnlineStatus.ONLINE,
     val discordActivity: DiscordActivityKind = DiscordActivityKind.LISTENING,
 )
@@ -388,6 +389,7 @@ object SettingsRepository {
             discordPresence = p.getBoolean("discord_presence", d.discordPresence),
             discordButtons = p.getBoolean("discord_buttons", d.discordButtons),
             discordShowPaused = p.getBoolean("discord_show_paused", d.discordShowPaused),
+            discordLyrics = p.getBoolean("discord_lyrics", d.discordLyrics),
             discordStatus = p.enum("discord_status", d.discordStatus),
             discordActivity = p.enum("discord_activity", d.discordActivity),
         )
@@ -464,6 +466,7 @@ object SettingsRepository {
         putBoolean("discord_presence", s.discordPresence)
         putBoolean("discord_buttons", s.discordButtons)
         putBoolean("discord_show_paused", s.discordShowPaused)
+        putBoolean("discord_lyrics", s.discordLyrics)
         putString("discord_status", s.discordStatus.name)
         putString("discord_activity", s.discordActivity.name)
     }

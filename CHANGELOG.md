@@ -1,4 +1,12 @@
 # Changelog
+## 1.9.26
+- Discord: nama aktivitas dan judul lagu tampil sekali saja (tanpa teks ganda); status langsung dihapus lalu sesi ditutup saat pemutaran berhenti; lirik sinkron tampil di status Discord (bisa dimatikan di Pengaturan, Discord)
+- Beranda: tombol refresh di pojok dan tarik untuk menyegarkan
+- Lagu dari Search diputar sendiri, lagu berikutnya adalah rekomendasi (radio lagu itu), bukan hasil pencarian lain, tanpa membuka stasiun
+- Streak: api hidup (bergoyang, percikan naik) yang bisa padam dengan asap dan menyala lagi
+- Now Playing: tombol Video musik, video diputar sinkron dengan audio
+- ZannTube: YouTube tanpa iklan di Pengaturan, Integrasi: beranda dengan chip kategori, cari, Shorts, langganan lokal, riwayat, kualitas sampai 1080p/1440p/4K, layar penuh
+
 ## 1.9.25
 - Logo baru ZANN MUSIC (huruf Z dengan gelombang suara) untuk ikon aplikasi dan layar pembuka (splash), warnanya disesuaikan
 - Halaman Tentang didesain ulang: kartu aplikasi, tombol Periksa pembaruan (update langsung dari aplikasi), foto pengembang, dan media sosial Telegram serta TikTok

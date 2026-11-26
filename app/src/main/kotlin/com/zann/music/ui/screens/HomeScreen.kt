@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.CircularProgressIndicator
@@ -107,6 +108,7 @@ fun HomeScreen(
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf(false) }
     var attempt by rememberSaveable { mutableStateOf(0) }
+    var refreshing by remember { mutableStateOf(false) }
     val seeds = remember(recent, liked) { HomeFeed.seedArtists(recent, liked).joinToString(",") }
 
     LaunchedEffect(attempt, seeds, chartQuery) {
@@ -118,6 +120,7 @@ fun HomeScreen(
             onFailure = { if (content == null) error = true },
         )
         loading = false
+        refreshing = false
     }
 
     val topPicks = content?.topPicks.orEmpty()
@@ -148,9 +151,14 @@ fun HomeScreen(
     val listState = rememberLazyListState()
     OnTabReselect("home") { listState.scrollToTopSmooth() }
 
+    androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+        isRefreshing = refreshing,
+        onRefresh = { refreshing = true; attempt++ },
+        modifier = modifier.fillMaxSize(),
+    ) {
     LazyColumn(
         state = listState,
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 28.dp + bottomInset),
         verticalArrangement = Arrangement.spacedBy(Spacing.Section),
     ) {
@@ -162,6 +170,7 @@ fun HomeScreen(
                     .padding(start = Spacing.ScreenH, end = Spacing.ScreenH, top = 14.dp),
                 trailing = {
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        GlassIconButton(Icons.Default.Refresh, stringResource(R.string.refresh), { if (!refreshing) { refreshing = true; attempt++ } }, size = 44.dp, iconSize = 22.dp)
                         GlassIconButton(Icons.Default.Search, stringResource(R.string.search), onOpenSearch, size = 44.dp, iconSize = 22.dp)
                         AccountButton(onClick = onOpenSettings)
                     }
@@ -376,6 +385,7 @@ fun HomeScreen(
                 )
             }
         }
+    }
     }
 }
 

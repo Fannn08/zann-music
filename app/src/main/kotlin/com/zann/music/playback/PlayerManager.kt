@@ -58,6 +58,8 @@ object PlayerManager {
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
+    /** The Audio | Video switch of the full player: show the music video, in sync with the audio. */
+    val musicVideo = MutableStateFlow(false)
     private val _isBuffering = MutableStateFlow(false)
     val isBuffering: StateFlow<Boolean> = _isBuffering.asStateFlow()
     private val _currentTitle = MutableStateFlow<String?>(null)
@@ -387,6 +389,30 @@ object PlayerManager {
     }
 
     private const val RADIO_SIZE = 25
+
+    /**
+     * Plays [item] and queues YouTube's own recommendations after it, with no station screen. Unlike a
+     * search-result queue, the songs that follow are never the other search hits: they come from the
+     * song's radio, minus the song itself and duplicates.
+     */
+    fun playWithRecommendations(item: SimpleItem) {
+        if (!item.isYouTube) {
+            setQueue(listOf(item), 0)
+            return
+        }
+        setQueue(listOf(item), 0, shuffle = false)
+        scope.launch {
+            val songs = YouTubeClient.radio(item.id).getOrNull().orEmpty()
+            val controller = mediaController ?: return@launch
+            if (controller.currentMediaItem?.mediaId != item.id || songs.isEmpty()) return@launch
+            for (i in controller.mediaItemCount - 1 downTo controller.currentMediaItemIndex + 1) {
+                if (MediaItems.isAutoplay(controller.getMediaItemAt(i))) controller.removeMediaItem(i)
+            }
+            val seen = HashSet<String>().apply { add(item.id) }
+            val picks = songs.filter { seen.add(it.id) }.take(RADIO_SIZE)
+            if (picks.isNotEmpty()) controller.addMediaItems(picks.map { it.toMediaItem() })
+        }
+    }
 
     fun playQueueEntry(entry: QueueEntry) {
         val controller = mediaController ?: return

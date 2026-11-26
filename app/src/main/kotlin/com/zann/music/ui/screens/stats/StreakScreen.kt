@@ -87,37 +87,12 @@ private fun StreakHero(current: Int, todayActive: Boolean, todayMs: Long) {
     val lit = current > 0
     val count by animateIntAsState(current, tween(900, easing = FastOutSlowInEasing), label = "streakCount")
 
-    val transition = rememberInfiniteTransition(label = "flame")
-    val sway by transition.animateFloat(
-        initialValue = 0.96f, targetValue = 1.04f,
-        animationSpec = infiniteRepeatable(tween(1100, easing = FastOutSlowInEasing), RepeatMode.Reverse),
-        label = "sway",
-    )
-    val glow by transition.animateFloat(
-        initialValue = 0.55f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Reverse),
-        label = "glow",
-    )
-
     StatsCard(Modifier.fillMaxWidth()) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(150.dp)) {
-                if (lit) {
-                    Canvas(Modifier.size(150.dp)) {
-                        drawCircle(
-                            Brush.radialGradient(
-                                listOf(Ember.copy(alpha = 0.35f * glow), Color.Transparent),
-                                center = Offset(size.width / 2, size.height * 0.6f),
-                                radius = size.width * 0.62f,
-                            ),
-                        )
-                    }
-                }
-                Canvas(Modifier.size(104.dp).scale(if (lit) sway else 1f)) { drawFlame(lit, glow) }
-            }
+            LivingFlame(lit = lit)
             Text(
                 count.toString(),
                 fontSize = 64.sp,

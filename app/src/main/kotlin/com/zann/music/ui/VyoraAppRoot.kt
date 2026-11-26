@@ -413,7 +413,10 @@ fun VyoraAppRoot(settings: AppSettings) {
             screen("search") {
                 SearchScreen(
                     onPlay = { songs, index ->
-                        PlayerManager.setQueue(songs, index)
+                        // Tapped hit plays alone; what follows is recommended, not the rest of the search list.
+                        val picked = songs.getOrNull(index)
+                        if (picked != null) PlayerManager.playWithRecommendations(picked)
+                        else PlayerManager.setQueue(songs, index)
                     },
                     onOpenPlaylist = openCollectionPage,
                     onOpenArtist = { item -> openArtistPage(item.title, item.thumbnail, item.id.takeIf { it.startsWith("UC") }) },
@@ -631,6 +634,9 @@ fun VyoraAppRoot(settings: AppSettings) {
                     onBack = { navController.popBackStack() },
                     onOpenPlaylist = { id -> navController.navigate(LibraryPages.playlist(id)) },
                 )
+            }
+            screen("settings/zanntube") {
+                com.zann.music.ui.screens.zanntube.ZannTubeScreen(onBack = { navController.popBackStack() })
             }
             screen("settings/discord") {
                 com.zann.music.ui.screens.settings.DiscordScreen(onBack = { navController.popBackStack() })
