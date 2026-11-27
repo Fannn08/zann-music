@@ -99,6 +99,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
         onDispose {
             if (customView != null) setFullscreen(false)
             CookieManager.getInstance().flush()
+            ZtBg.detach()
         }
     }
 
@@ -158,6 +159,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
 
                                 override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
                                     failed = false
+                                    view.evaluateJavascript(ZT_ADS_JS, null)
                                 }
 
                                 override fun onPageFinished(view: WebView, url: String?) {
@@ -178,6 +180,10 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                                     } else if (!watching) {
                                         musicPausedForVideo = false
                                     }
+                                }
+
+                                override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): android.webkit.WebResourceResponse? {
+                                    return if (ZtAdBlock.isAd(request.url)) ZtAdBlock.empty() else super.shouldInterceptRequest(view, request)
                                 }
 
                                 override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
@@ -230,7 +236,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
             }
             ZtChatDialog(webView)
             ZtMiniPlayer(webView)
-            ZtBottomBar(webView, { onBack() }, false)
+            if (!ZtBg.pip.value) ZtBottomBar(webView, { onBack() }, false)
             if (false)
             androidx.compose.foundation.layout.Row(
                 Modifier.fillMaxWidth().background(TubeBlack),

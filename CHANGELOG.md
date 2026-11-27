@@ -1,4 +1,12 @@
 # Changelog
+## 1.9.30
+- Video ZannTube tetap putar di latar belakang (layar mati atau pindah aplikasi), lengkap dengan notifikasi media: judul, cover, progres, jeda/putar, mundur dan maju 10 detik
+- Layar kecil (PiP) otomatis saat menekan Home ketika video sedang diputar (Android 12 ke atas)
+- Pemblokir iklan ala ReVanced: data iklan dibuang dari pemutar dan permintaan jaringan iklan diblokir, jadi iklan video tidak ikut dimuat
+- Geser video ke bawah jadi mini player tanpa memuat ulang halaman (tidak berkedip lagi), dengan video ikut turun mengikuti jari
+- Tombol "Buka Apl" di atas dihapus
+- Tiga saklar baru di Pengaturan ZannTube: Blokir iklan, Putar di latar belakang, dan Layar kecil
+
 ## 1.9.29
 - Geser video ke bawah untuk mengecilkan jadi mini player
 - Logo ZannTube, tombol "Buka Aplikasi" dihapus

@@ -1,8 +1,8 @@
 package com.zann.music.ui.screens.zanntube
 
-const val ZT_EXTRA_JS = """(function(){
+const val ZT_EXTRA_JS = ZT_ADS_JS + ZT_BG_JS + """(function(){
 if(window.__ztx2)return;window.__ztx2=1;
-var D={hs:0,sb:1,dl:1,qs:'auto',qv:'auto',sp:1};
+var D={ab:1,bg:1,pp:1,hs:0,sb:1,dl:1,qs:'auto',qv:'auto',sp:1};
 function lc(){try{var o=JSON.parse(localStorage.getItem('zt_cfg')||'{}');for(var k in D)if(o[k]===undefined)o[k]=D[k];return o;}catch(e){return JSON.parse(JSON.stringify(D));}}
 var cfg=lc();
 function set(k,v){cfg[k]=v;try{localStorage.setItem('zt_cfg',JSON.stringify(cfg));}catch(e){}apply();}
@@ -49,7 +49,7 @@ function minimize(){
  var ti=document.title.replace(/ - YouTube$/,'');
  try{ZtBridge.minimize(id,Math.floor(v.currentTime),ti,ch);}catch(e){return;}
  try{v.pause();}catch(e){}
- location.href='https://m.youtube.com/?hl=id';}
+ window.__ztHome();}
 document.addEventListener('touchstart',function(e){
  ma=false;
  if(!vid()||document.fullscreenElement||e.touches.length!==1)return;
@@ -153,6 +153,9 @@ function panel(){
  pn.appendChild(row('SponsorBlock: lewati sponsor, promosi, intro, outro',tog('sb')));
  pn.appendChild(row('Tombol Unduh di halaman video',tog('dl')));
  pn.appendChild(row('Sembunyikan Shorts di beranda',tog('hs')));
+ pn.appendChild(row('Blokir iklan video dan beranda (ala ReVanced)',tog('ab')));
+ pn.appendChild(row('Putar di latar belakang (notifikasi media)',tog('bg')));
+ pn.appendChild(row('Layar kecil (PiP) saat keluar aplikasi',tog('pp')));
  pn.appendChild(el('div','font:13px sans-serif;color:#938f99;padding:16px 4px;','Iklan video diblokir otomatis. Unduhan disimpan di Download/ZannTube.'));
  document.body.appendChild(pn);}
 
@@ -163,7 +166,7 @@ function top_(){
  var bs=tb.querySelectorAll('button,a,ytm-button-renderer');
  for(var i=0;i<bs.length;i++){
   var b=bs[i],tx=((b.innerText||'')+' '+(b.getAttribute('aria-label')||'')).trim();
-  if(/^(buka|open)\s*(api|aplikasi|app)/i.test(tx)){var t=b.closest('ytm-button-renderer')||b;t.style.display='none';}
+  if(/^(buka|open)\s*(apl|api|aplikasi|app)/i.test(tx)){var t=b.closest('ytm-button-renderer')||b;t.style.display='none';}
  }
  var lg=tb.querySelector('ytm-home-logo')||tb.querySelector('.mobile-topbar-logo')||tb.querySelector('a[href="/"]')||tb.querySelector('a[aria-label*="YouTube"]');
  if(lg){

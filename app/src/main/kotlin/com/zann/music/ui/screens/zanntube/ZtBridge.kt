@@ -13,6 +13,10 @@ class ZtBridge(private val ctx: Context, private val web: WebView) {
     private val main = Handler(Looper.getMainLooper())
     private val idRe = Regex("^[A-Za-z0-9_-]{11}$")
 
+    init {
+        ZtBg.attach(ctx, web)
+    }
+
     @JavascriptInterface
     fun minimize(id: String, t: Int, title: String, channel: String) {
         if (!idRe.matches(id)) return
@@ -23,6 +27,13 @@ class ZtBridge(private val ctx: Context, private val web: WebView) {
     fun download(id: String, title: String, audioOnly: Boolean) {
         if (!idRe.matches(id)) return
         ZtDownload.start(ctx.applicationContext, id, title, audioOnly)
+    }
+
+    @JavascriptInterface
+    fun bgState(id: String, playing: Boolean, title: String, channel: String, pos: Int, dur: Int, rate: Double, pip: Boolean) {
+        if (id.isNotEmpty() && !idRe.matches(id)) return
+        val r = if (rate > 0.0 && rate < 16.0) rate.toFloat() else 1f
+        main.post { ZtBg.update(id, playing, title.take(200), channel.take(100), pos, dur, r, pip) }
     }
 
     @JavascriptInterface
