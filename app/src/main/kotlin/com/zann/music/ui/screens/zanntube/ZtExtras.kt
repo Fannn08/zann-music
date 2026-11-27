@@ -2,8 +2,8 @@ package com.zann.music.ui.screens.zanntube
 
 const val ZT_EXTRA_JS = ZT_ADS_JS + ZT_BG_JS + """(function(){
 if(window.__ztx2)return;window.__ztx2=1;
-var D={ab:1,bg:1,pp:1,hs:0,sb:1,dl:1,qs:'auto',qv:'auto',sp:1,ms:'default'};
-function lc(){try{var o=JSON.parse(localStorage.getItem('zt_cfg')||'{}');for(var k in D)if(o[k]===undefined)o[k]=D[k];return o;}catch(e){return JSON.parse(JSON.stringify(D));}}
+var D={ab:1,bg:1,pp:1,hs:1,rs:1,sb:1,dl:1,qs:'auto',qv:'auto',sp:1,ms:'default'};
+function lc(){try{var o=JSON.parse(localStorage.getItem('zt_cfg')||'{}');for(var k in D)if(o[k]===undefined)o[k]=D[k];if(!o._m2){o.hs=1;o._m2=1;}return o;}catch(e){return JSON.parse(JSON.stringify(D));}}
 var cfg=lc();
 try{ZtBridge.miniStyle(cfg.ms);}catch(e){}
 function set(k,v){cfg[k]=v;try{localStorage.setItem('zt_cfg',JSON.stringify(cfg));}catch(e){}apply();}
@@ -65,7 +65,11 @@ document.addEventListener('touchend',function(e){
 
 function hs(){
  var s=document.getElementById('zt-hs');
- if(cfg.hs){if(!s){s=el('style');s.id='zt-hs';s.textContent='ytm-reel-shelf-renderer,ytm-shorts-lockup-view-model,ytm-shorts-lockup-view-model-v2,ytm-rich-section-renderer:has(ytm-reel-shelf-renderer){display:none !important;}';(document.head||document.documentElement).appendChild(s);}}
+ if(cfg.hs){if(!s){s=el('style');s.id='zt-hs';s.textContent='ytm-reel-shelf-renderer,ytm-shorts-lockup-view-model,ytm-shorts-lockup-view-model-v2,ytm-rich-section-renderer:has(ytm-reel-shelf-renderer),ytm-rich-section-renderer:has(ytm-shorts-lockup-view-model),ytm-rich-section-renderer:has(a[href^="/shorts/"]),ytm-item-section-renderer:has(ytm-reel-shelf-renderer),ytm-rich-item-renderer:has(a[href^="/shorts/"]),ytm-video-with-context-renderer:has(a[href^="/shorts/"]),ytm-compact-video-renderer:has(a[href^="/shorts/"]),grid-shelf-view-model:has(a[href^="/shorts/"]){display:none !important;}';(document.head||document.documentElement).appendChild(s);}}
+ else if(s)s.remove();}
+function rs(){
+ var s=document.getElementById('zt-rs');
+ if(cfg.rs){if(!s){s=el('style');s.id='zt-rs';s.textContent='html,body,ytm-app{--yt-spec-base-background:#141218 !important;background:#141218 !important;}ytm-rich-item-renderer,ytm-video-with-context-renderer,ytm-compact-video-renderer{background:#1d1b20 !important;border-radius:22px !important;overflow:hidden !important;margin:8px 12px !important;padding-bottom:6px !important;}ytm-rich-item-renderer img,ytm-video-with-context-renderer img,ytm-compact-video-renderer img{border-radius:18px !important;}chip-shape button,chip-shape,ytm-chip-cloud-chip-renderer{border-radius:16px !important;}';(document.head||document.documentElement).appendChild(s);}}
  else if(s)s.remove();}
 function ap(){
  var q=isSh()?cfg.qs:(vid()?cfg.qv:'auto');if(q==='auto')return;
@@ -178,6 +182,7 @@ function build(){
   row('SponsorBlock: lewati sponsor, promosi, intro, outro',tog('sb'),'\u23ED'),
   row('Tombol Unduh di halaman video',tog('dl'),'\u2B07'),
   row('Sembunyikan Shorts di beranda',tog('hs'),'\u25AF'),
+  row('Gaya ala Rythim (tab, kartu bulat, latar gelap)',tog('rs'),'\u25A2'),
   row('Blokir iklan video dan beranda (ala ReVanced)',tog('ab'),'\u2298'),
   row('Putar di latar belakang (notifikasi media)',tog('bg'),'\u266B'),
   row('Layar kecil (PiP) saat keluar aplikasi',tog('pp'),'\u29C9')]));
@@ -205,7 +210,7 @@ function top_(){
   if(!document.getElementById('zt-logo')){
    var w=el('div','display:inline-flex;align-items:center;gap:6px;');w.id='zt-logo';
    var b2=el('span','display:inline-flex;align-items:center;gap:6px;font:700 20px sans-serif;color:#fff;');
-   b2.appendChild(el('span','display:inline-flex;align-items:center;justify-content:center;width:30px;height:22px;border-radius:7px;background:#f03;font:12px sans-serif;color:#fff;','\u25B6'));
+   b2.appendChild(el('span','display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#d0bcff,#9a5fd0);font:13px sans-serif;color:#fff;','\u25B6'));
    b2.appendChild(el('span','','ZannTube'));
    var g=el('span','font:20px sans-serif;color:#d0bcff;padding:4px 8px;','\u2699');
    g.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();panel();});
@@ -221,13 +226,55 @@ function gear(){
   g=el('div','position:fixed;left:12px;bottom:20px;z-index:2147483646;width:42px;height:42px;border-radius:50%;background:rgba(74,68,88,.95);color:#e8def8;font:22px sans-serif;display:flex;align-items:center;justify-content:center;','\u2699');
   g.id='zt-gear';g.addEventListener('click',function(e){e.stopPropagation();panel();});document.body.appendChild(g);}
  if(g)g.style.display=(need&&okp())?'flex':'none';}
-function apply(){hs();ap();upd();spId='';try{ZtBridge.miniStyle(cfg.ms);}catch(e){}}
+var tb2=null,tm=null,tbS=null;
+function tabsOn(){
+ if(!cfg.rs||!okp())return false;
+ var p=location.pathname;
+ return p==='/'||p.indexOf('/feed/')===0||(p==='/results'&&/sp=EgJAAQ/.test(location.search));}
+function tabAct(){
+ var p=location.pathname;
+ if(p==='/results')return 2;
+ if(p.indexOf('/feed/subscriptions')===0)return 1;
+ if(p==='/')return 0;
+ return -1;}
+function rt(){
+ var on=tabsOn();
+ if(!tbS){tbS=el('style');tbS.id='zt-tabs-css';(document.head||document.documentElement).appendChild(tbS);}
+ tbS.textContent=on?'body{padding-top:44px !important;}ytm-feed-filter-chip-bar-renderer{display:none !important;}':'';
+ if(!on){if(tb2)tb2.style.display='none';if(tm)tm.style.display='none';return;}
+ var bar=document.querySelector('ytm-mobile-topbar-renderer');
+ var top=bar?Math.round(bar.getBoundingClientRect().bottom):56;
+ if(!tb2||!tb2.isConnected){
+  tb2=el('div','position:fixed;left:0;right:0;height:44px;z-index:2147483640;background:#141218;display:flex;align-items:stretch;overflow-x:auto;white-space:nowrap;padding:0 8px;');
+  var T=[['Beranda','/?hl=id'],['Subscription','/feed/subscriptions?hl=id'],['Live','/results?search_query=live&sp=EgJAAQ%253D%253D&hl=id'],['Selengkapnya','']];
+  for(var i=0;i<T.length;i++){(function(t,ix){
+   var b=el('div','display:flex;align-items:center;padding:0 12px;font:500 14px sans-serif;position:relative;flex:none;',t[0]);
+   b.setAttribute('data-ix',ix);
+   b.addEventListener('click',function(e){e.stopPropagation();
+    if(t[1]){if(tm)tm.style.display='none';location.href='https://m.youtube.com'+t[1];}
+    else{if(tm)tm.style.display=tm.style.display==='block'?'none':'block';}});
+   tb2.appendChild(b);})(T[i],i);}
+  document.body.appendChild(tb2);
+  tm=el('div','position:fixed;right:10px;z-index:2147483645;min-width:190px;padding:6px;border-radius:16px;background:#2b2930;color:#e6e0e9;font:15px sans-serif;display:none;box-shadow:0 4px 16px rgba(0,0,0,.6);');
+  var M=[['Riwayat','/feed/history?hl=id'],['Playlist','/feed/library?hl=id'],['Pengaturan ZannTube','']];
+  for(var k=0;k<M.length;k++){(function(m){
+   var r=el('div','padding:12px 14px;border-radius:10px;',m[0]);
+   r.addEventListener('click',function(e){e.stopPropagation();tm.style.display='none';if(m[1])location.href='https://m.youtube.com'+m[1];else panel();});
+   tm.appendChild(r);})(M[k]);}
+  document.body.appendChild(tm);}
+ tb2.style.display='flex';tb2.style.top=top+'px';tm.style.top=(top+40)+'px';
+ var a=tabAct(),ch=tb2.children;
+ for(var q=0;q<ch.length;q++){
+  var on2=(q===a);
+  ch[q].style.color=on2?'#fff':'#cac4d0';
+  ch[q].style.boxShadow=on2?'inset 0 -3px 0 #d0bcff':'none';}}
+function apply(){hs();rs();rt();ap();upd();spId='';try{ZtBridge.miniStyle(cfg.ms);}catch(e){}}
 setInterval(function(){
  if(!document.body)return;
  try{
   if(!chip||!chip.isConnected||!menu||!menu.isConnected)mkchip();
   if(isSh()){chip.style.display='block';upd();}else{chip.style.display='none';menu.style.display='none';}
-  top_();gear();hs();ap();spd();sbLoad();dlShow();
+  top_();gear();hs();rs();rt();ap();spd();sbLoad();dlShow();
  }catch(e){}
 },800);
 })();"""
