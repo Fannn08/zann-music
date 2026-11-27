@@ -235,7 +235,6 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                 }
             }
             ZtChatDialog(webView)
-            ZtMiniPlayer(webView)
             if (!ZtBg.pip.value) ZtBottomBar(webView, { onBack() }, false)
             if (false)
             androidx.compose.foundation.layout.Row(
@@ -255,6 +254,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                 }
             }
         }
+        ZtMiniPlayer(webView)
         customView?.let { video ->
             AndroidView(
                 modifier = Modifier.fillMaxSize().background(Color.Black),

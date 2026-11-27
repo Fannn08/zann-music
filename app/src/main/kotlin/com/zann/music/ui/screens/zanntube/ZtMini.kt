@@ -14,6 +14,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -64,6 +67,7 @@ object ZtMini {
     val channel = mutableStateOf("")
     val playing = mutableStateOf(true)
     val failed = mutableStateOf(false)
+    val ready = mutableStateOf(false)
     @Volatile var openedAt = 0L
 
     fun open(id: String, t: Int, ti: String, ch: String) {
@@ -74,6 +78,7 @@ object ZtMini {
         channel.value = ch
         playing.value = true
         failed.value = false
+        ready.value = false
         videoId.value = id
     }
 
@@ -86,6 +91,7 @@ class ZtMiniBridge {
     @JavascriptInterface
     fun onState(s: Int) {
         ZtMini.playing.value = (s == 1 || s == 3)
+        ZtMini.ready.value = true
     }
 
     @JavascriptInterface
@@ -197,7 +203,7 @@ private fun ZtMiniTracker(webView: WebView?) {
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun ZtMiniPlayer(webView: WebView?) {
+fun BoxScope.ZtMiniPlayer(webView: WebView?) {
     ZtMiniTracker(webView)
     val id = ZtMini.videoId.value ?: return
     val density = LocalDensity.current
@@ -228,18 +234,17 @@ fun ZtMiniPlayer(webView: WebView?) {
         }
     }
 
-    Popup(
-        alignment = Alignment.BottomCenter,
-        offset = IntOffset(ox.roundToInt(), oy.roundToInt()),
-        properties = PopupProperties(focusable = false, clippingEnabled = false),
-    ) {
+    run {
         val shape = RoundedCornerShape(24.dp)
         Column(
             Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .offset { IntOffset(ox.roundToInt(), oy.roundToInt()) }
                 .width(300.dp)
-                .clip(shape)
-                .background(Color(0xFF1C1B1F))
-                .border(1.dp, Color(0x40FFFFFF), shape),
+                .background(Color(0xFF1C1B1F), shape)
+                .border(1.dp, Color(0x40FFFFFF), shape)
+                .padding(6.dp),
         ) {
             Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)) {
                 AndroidView(
@@ -311,7 +316,7 @@ fun ZtMiniPlayer(webView: WebView?) {
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        ZtMini.channel.value.ifEmpty { "Mini player" },
+                        if (!ZtMini.ready.value) "Memuat video..." else ZtMini.channel.value.ifEmpty { "Mini player" },
                         color = Color(0xFFCAC4D0), fontSize = 13.sp,
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )

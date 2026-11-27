@@ -1,4 +1,8 @@
 # Changelog
+## 1.9.32
+- Mini player dipindah ke jendela utama supaya videonya tidak hitam lagi
+- Tulisan "Memuat video..." tampil sampai video siap
+
 ## 1.9.31
 - Mini player sekarang memakai halaman tonton YouTube asli yang diperkecil, jadi tidak lagi hitam
 - Video tidak lagi tertarik balik ke halaman video saat membuka Beranda, Langganan, Kamu, atau Pengaturan
