@@ -1,4 +1,9 @@
 # Changelog
+## 1.9.29
+- Geser video ke bawah untuk mengecilkan jadi mini player
+- Logo ZannTube, tombol "Buka Aplikasi" dihapus
+- Menu pengaturan ZannTube: SponsorBlock, unduh video/audio, resolusi, kecepatan, sembunyikan Shorts
+
 ## 1.9.28
 - Mini player: video bisa dikecilkan, digeser, dijeda, dibuka lagi
 - Bilah bawah gaya baru + tombol Musik untuk kembali ke musik

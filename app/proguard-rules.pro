@@ -32,3 +32,8 @@
 }
 
 -keep class com.zann.music.playback.cast.CastOptionsProvider { *; }
+
+-keepattributes JavascriptInterface
+-keepclassmembers class com.zann.music.ui.screens.zanntube.** {
+    @android.webkit.JavascriptInterface <methods>;
+}

@@ -202,6 +202,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                                     setFullscreen(false)
                                 }
                             }
+                            addJavascriptInterface(ZtBridge(ctx, this), "ZtBridge")
                             loadUrl(HOME_URL)
                             webView = this
                         }

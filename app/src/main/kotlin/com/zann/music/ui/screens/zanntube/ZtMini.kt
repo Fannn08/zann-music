@@ -61,8 +61,11 @@ object ZtMini {
     val channel = mutableStateOf("")
     val playing = mutableStateOf(true)
     val failed = mutableStateOf(false)
+    @Volatile var openedAt = 0L
 
     fun open(id: String, t: Int, ti: String, ch: String) {
+        if (videoId.value == id) return
+        openedAt = android.os.SystemClock.uptimeMillis()
         start.value = t
         title.value = ti
         channel.value = ch
@@ -115,7 +118,7 @@ private fun ZtMiniTracker(webView: WebView?) {
             if (w != null) {
                 val id = ztWatchId(w.url ?: "")
                 if (id != null) {
-                    if (ZtMini.videoId.value != null) ZtMini.close()
+                    if (ZtMini.videoId.value != null && android.os.SystemClock.uptimeMillis() - ZtMini.openedAt > 3000) ZtMini.close()
                     lastId = id
                     w.evaluateJavascript(ZT_PROBE) { r ->
                         try {
