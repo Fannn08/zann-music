@@ -162,6 +162,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
 
                                 override fun onPageFinished(view: WebView, url: String?) {
             view?.evaluateJavascript(ZT_HIDE_BAR_JS, null)
+            view?.evaluateJavascript(ZT_EXTRA_JS, null)
                                     view.evaluateJavascript(CLEANUP_SCRIPT, null)
                                     canGoBack = view.canGoBack()
                                 }
@@ -227,6 +228,9 @@ fun ZannTubeScreen(onBack: () -> Unit) {
                 }
             }
             ZtChatDialog(webView)
+            ZtMiniPlayer(webView)
+            ZtBottomBar(webView, { onBack() }, false)
+            if (false)
             androidx.compose.foundation.layout.Row(
                 Modifier.fillMaxWidth().background(TubeBlack),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly,

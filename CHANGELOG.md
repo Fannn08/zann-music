@@ -1,4 +1,10 @@
 # Changelog
+## 1.9.28
+- Mini player: video bisa dikecilkan, digeser, dijeda, dibuka lagi
+- Bilah bawah gaya baru + tombol Musik untuk kembali ke musik
+- Tarik ke bawah untuk refresh (beranda dan pencarian)
+- Pilihan resolusi video Shorts
+
 ## 1.9.27
 - Obrolan langsung (chat live) lewat tombol Chat di bilah bawah
 - Perbaikan bilah bawah ganda di beranda
