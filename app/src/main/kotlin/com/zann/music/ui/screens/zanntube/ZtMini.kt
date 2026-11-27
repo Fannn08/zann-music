@@ -283,10 +283,7 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
                 .navigationBarsPadding()
                 .padding(end = 12.dp)
                 .offset { IntOffset(ox.roundToInt(), oy.roundToInt()) }
-                .width(236.dp)
-                .clip(cardShape)
-                .background(barColor)
-                .border(1.dp, Color(0x40FFFFFF), cardShape),
+                .width(236.dp),
         ) {
             Box(
                 Modifier
@@ -349,7 +346,8 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
                 Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .clip(RoundedCornerShape(0.dp))
+                    .clip(RoundedCornerShape(bottomStart = 22.dp, bottomEnd = 22.dp))
+                    .background(barColor)
                     .pointerInput(Unit) {
                         detectDragGestures { change, drag ->
                             change.consume()
