@@ -1,6 +1,9 @@
 package com.zann.music.ui.screens.zanntube
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.webkit.CookieManager
+import android.webkit.WebResourceRequest
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -98,12 +101,58 @@ private fun ztWatchId(url: String): String? {
 
 private const val ZT_PROBE = """(function(){var v=document.querySelector('video');var o=document.querySelector('ytm-slim-owner-renderer');return JSON.stringify({t:v?v.currentTime:0,p:v?v.paused:true,e:v?v.ended:false,ti:document.title,ch:((o&&o.innerText)||'').split('\n')[0]});})()"""
 
-private fun ztMiniHtml(id: String, start: Int): String = """<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#p{width:100%;height:100%}</style></head><body><div id="p"></div><script src="https://www.youtube.com/iframe_api"></script><script>
-var pl;
-function onYouTubeIframeAPIReady(){pl=new YT.Player('p',{width:'100%',height:'100%',videoId:'$id',playerVars:{autoplay:1,playsinline:1,controls:0,start:$start,rel:0,modestbranding:1,fs:0,disablekb:1,origin:'https://www.youtube.com'},events:{onReady:function(e){e.target.playVideo();},onStateChange:function(e){ZtMiniBridge.onState(e.data);},onError:function(e){ZtMiniBridge.onError(e.data);}}});}
-function ztToggle(){if(!pl)return;if(pl.getPlayerState()==1)pl.pauseVideo();else pl.playVideo();}
-function ztTime(){return(pl&&pl.getCurrentTime)?pl.getCurrentTime():0;}
-</script></body></html>"""
+private fun ztMiniUrl(id: String, start: Int): String = "https://m.youtube.com/watch?v=" + id + "&t=" + start + "s"
+
+/**
+ * Mini player = halaman tonton YouTube asli di WebView kecil, dengan semua tampilan disembunyikan kecuali videonya.
+ * Cookie dan login sama dengan layar utama, jadi tidak ada layar hitam seperti iframe embed.
+ */
+private const val ZT_MINI_JS = """(function(){
+if(window.__ztmini)return;window.__ztmini=1;
+function over(n,fake){try{Object.defineProperty(document,n,{configurable:true,get:function(){return fake;}});}catch(e){}}
+over('hidden',false);over('webkitHidden',false);over('visibilityState','visible');over('webkitVisibilityState','visible');
+['visibilitychange','webkitvisibilitychange'].forEach(function(n){window.addEventListener(n,function(e){e.stopImmediatePropagation();},true);document.addEventListener(n,function(e){e.stopImmediatePropagation();},true);});
+var css='html,body{background:#000 !important;overflow:hidden !important;}'
++'body *{visibility:hidden !important;}'
++'.html5-video-player,.html5-video-player *{visibility:visible !important;}'
++'.html5-video-player{position:fixed !important;left:0 !important;top:0 !important;right:0 !important;bottom:0 !important;width:100vw !important;height:100vh !important;max-width:none !important;max-height:none !important;margin:0 !important;z-index:2147483647 !important;background:#000 !important;}'
++'.html5-video-container{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;height:100% !important;}'
++'video{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;height:100% !important;object-fit:contain !important;}'
++'.ytp-chrome-top,.ytp-chrome-bottom,.ytp-gradient-top,.ytp-gradient-bottom,.ytp-pause-overlay,.ytp-ce-element,.ytp-endscreen-content,.ytp-watermark,.ytp-unmute,.ytp-unmute-inner,.player-controls-content,.player-controls-background,.player-controls-top,.player-controls-bottom,ytm-custom-control,.ytp-ad-overlay-container,.ytp-ad-module{display:none !important;}';
+function addStyle(){
+ if(document.getElementById('zt-mini-css'))return;
+ var s=document.createElement('style');s.id='zt-mini-css';s.textContent=css;
+ (document.head||document.documentElement).appendChild(s);}
+function fixAnc(p){
+ var a=p.parentElement;
+ while(a&&a!==document.documentElement){
+  try{a.style.setProperty('transform','none','important');a.style.setProperty('contain','none','important');a.style.setProperty('filter','none','important');}catch(e){}
+  a=a.parentElement;}}
+function vd(){return document.querySelector('video');}
+window.ztToggle=function(){
+ var v=vd();if(!v)return;
+ if(v.paused){var r=v.play();if(r&&r.catch)r.catch(function(){});}else v.pause();};
+window.ztTime=function(){var v=vd();return v?v.currentTime:0;};
+var started=false,last=0,fixedEl=null;
+function tick(){
+ try{
+  addStyle();
+  var p=document.querySelector('.html5-video-player');
+  if(p&&fixedEl!==p){fixedEl=p;fixAnc(p);}
+  var v=vd();if(!v)return;
+  var ad=p&&(p.classList.contains('ad-showing')||p.classList.contains('ad-interrupting'));
+  if(!ad&&v.readyState>0){if(v.muted)v.muted=false;if(v.volume===0)v.volume=1;}
+  if(!started){
+   if(v.paused&&v.readyState>=2){var r=v.play();if(r&&r.catch)r.catch(function(){});}
+   if(!v.paused)started=true;}
+  var s=v.paused?2:1;
+  if(s!==last){last=s;try{ZtMiniBridge.onState(s);}catch(e){}}
+ }catch(e){}
+}
+setInterval(tick,400);
+tick();
+})();
+"""
 
 @Composable
 private fun ZtMiniTracker(webView: WebView?) {
@@ -118,7 +167,7 @@ private fun ZtMiniTracker(webView: WebView?) {
             if (w != null) {
                 val id = ztWatchId(w.url ?: "")
                 if (id != null) {
-                    if (ZtMini.videoId.value != null && android.os.SystemClock.uptimeMillis() - ZtMini.openedAt > 3000) ZtMini.close()
+                    if (ZtMini.videoId.value != null && android.os.SystemClock.uptimeMillis() - ZtMini.openedAt > 1500) ZtMini.close()
                     lastId = id
                     w.evaluateJavascript(ZT_PROBE) { r ->
                         try {
@@ -172,10 +221,9 @@ fun ZtMiniPlayer(webView: WebView?) {
         }
     }
 
-    LaunchedEffect(ZtMini.failed.value) { if (ZtMini.failed.value) expand() }
     DisposableEffect(id) {
         onDispose {
-            holder[0]?.destroy()
+            holder[0]?.let { it.stopLoading(); it.loadUrl("about:blank"); it.destroy() }
             holder[0] = null
         }
     }
@@ -201,13 +249,27 @@ fun ZtMiniPlayer(webView: WebView?) {
                             settings.javaScriptEnabled = true
                             settings.domStorageEnabled = true
                             settings.mediaPlaybackRequiresUserGesture = false
+                            settings.userAgentString = settings.userAgentString.replace("; wv", "")
                             setBackgroundColor(android.graphics.Color.BLACK)
+                            CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
                             addJavascriptInterface(ZtMiniBridge(), "ZtMiniBridge")
-                            webViewClient = WebViewClient()
-                            loadDataWithBaseURL(
-                                "https://www.youtube.com", ztMiniHtml(id, ZtMini.start.value),
-                                "text/html", "utf-8", null,
-                            )
+                            webViewClient = object : WebViewClient() {
+                                private fun inject(v: WebView) {
+                                    v.evaluateJavascript(ZT_ADS_JS, null)
+                                    v.evaluateJavascript(ZT_MINI_JS, null)
+                                }
+
+                                override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) { inject(view) }
+
+                                override fun onPageCommitVisible(view: WebView, url: String?) { inject(view) }
+
+                                override fun onPageFinished(view: WebView, url: String?) { inject(view) }
+
+                                override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): android.webkit.WebResourceResponse? {
+                                    return if (ZtAdBlock.isAd(request.url)) ZtAdBlock.empty() else super.shouldInterceptRequest(view, request)
+                                }
+                            }
+                            loadUrl(ztMiniUrl(id, ZtMini.start.value))
                             holder[0] = this
                         }
                     },

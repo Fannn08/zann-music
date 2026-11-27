@@ -1,4 +1,9 @@
 # Changelog
+## 1.9.31
+- Mini player sekarang memakai halaman tonton YouTube asli yang diperkecil, jadi tidak lagi hitam
+- Video tidak lagi tertarik balik ke halaman video saat membuka Beranda, Langganan, Kamu, atau Pengaturan
+- Mini player tetap berjalan sambil kamu menjelajah, iklan tetap diblokir di dalamnya
+
 ## 1.9.30
 - Video ZannTube tetap putar di latar belakang (layar mati atau pindah aplikasi), lengkap dengan notifikasi media: judul, cover, progres, jeda/putar, mundur dan maju 10 detik
 - Layar kecil (PiP) otomatis saat menekan Home ketika video sedang diputar (Android 12 ke atas)
