@@ -267,7 +267,7 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
     }
 
     run {
-        val cardShape = RoundedCornerShape(26.dp)
+        val cardShape = RoundedCornerShape(22.dp)
         val pill = RoundedCornerShape(32.dp)
         val style = ZtMini.style.value
         val thumb = "https://i.ytimg.com/vi/$id/mqdefault.jpg"
@@ -279,18 +279,20 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
         }
         Column(
             Modifier
-                .align(Alignment.BottomCenter)
+                .align(Alignment.BottomEnd)
                 .navigationBarsPadding()
+                .padding(end = 12.dp)
                 .offset { IntOffset(ox.roundToInt(), oy.roundToInt()) }
-                .width(300.dp),
+                .width(236.dp)
+                .clip(cardShape)
+                .background(barColor)
+                .border(1.dp, Color(0x40FFFFFF), cardShape),
         ) {
             Box(
                 Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .clip(cardShape)
-                    .background(Color.Black)
-                    .border(1.dp, Color(0x40FFFFFF), cardShape),
+                    .background(Color.Black),
             ) {
                 AndroidView(
                     modifier = Modifier.fillMaxSize(),
@@ -338,18 +340,16 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
                             }
                         },
                 )
+                ZtMiniBtn(Modifier.align(Alignment.TopStart).padding(6.dp), { expand() }) { zmExpand(Color.White) }
+                ZtMiniBtn(Modifier.align(Alignment.TopEnd).padding(6.dp), { ZtMini.close() }) { zmClose(Color.White) }
             }
-
-            Spacer(Modifier.height(6.dp))
 
             // Kapsul ala Rythim: tombol play dengan cincin progres, judul + kanal, lalu perbesar dan tutup.
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .height(64.dp)
-                    .clip(pill)
-                    .background(barColor)
-                    .border(1.dp, Color(0x4DFFFFFF), pill)
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(0.dp))
                     .pointerInput(Unit) {
                         detectDragGestures { change, drag ->
                             change.consume()
@@ -380,7 +380,7 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
                 ) {
                     Box(
                         Modifier
-                            .size(48.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .clickable { holder[0]?.evaluateJavascript("ztToggle()", null) }
                             .drawWithContent {
@@ -409,20 +409,16 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
                     Column(Modifier.weight(1f)) {
                         Text(
                             ZtMini.title.value.ifEmpty { "ZannTube" },
-                            color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                            color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
                             maxLines = 1, overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             if (!ZtMini.ready.value) "Memuat video..." else ZtMini.channel.value.ifEmpty { "Mini player" },
-                            color = Color.White.copy(alpha = 0.62f), fontSize = 12.sp,
+                            color = Color.White.copy(alpha = 0.62f), fontSize = 11.sp,
                             maxLines = 1, overflow = TextOverflow.Ellipsis,
                         )
                     }
 
-                    Spacer(Modifier.width(6.dp))
-                    ZtMiniBtn(Modifier, { expand() }) { zmExpand(Color.White) }
-                    Spacer(Modifier.width(6.dp))
-                    ZtMiniBtn(Modifier, { ZtMini.close() }) { zmClose(Color.White) }
                 }
             }
         }
@@ -433,13 +429,13 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
 private fun ZtMiniBtn(modifier: Modifier, onClick: () -> Unit, draw: DrawScope.() -> Unit) {
     Box(
         modifier
-            .size(38.dp)
+            .size(30.dp)
             .clip(CircleShape)
             .background(Color(0x99303033))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(Modifier.size(18.dp)) { draw() }
+        Canvas(Modifier.size(15.dp)) { draw() }
     }
 }
 
