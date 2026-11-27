@@ -81,10 +81,12 @@ object ZtMini {
     val style = mutableStateOf("default")
     val pos = mutableStateOf(0f)
     val dur = mutableStateOf(0f)
+    val info = mutableStateOf("")
     @Volatile var openedAt = 0L
 
     fun open(id: String, t: Int, ti: String, ch: String) {
         if (videoId.value == id) return
+        info.value = ""
         openedAt = android.os.SystemClock.uptimeMillis()
         start.value = t
         title.value = ti
@@ -110,6 +112,11 @@ class ZtMiniBridge {
     }
 
     @JavascriptInterface
+    fun onInfo(s: String) {
+        ZtMini.info.value = s
+    }
+
+    @JavascriptInterface
     fun onError(c: Int) {
         ZtMini.failed.value = true
     }
@@ -121,6 +128,8 @@ private fun ztWatchId(url: String): String? {
 }
 
 private const val ZT_PROBE = """(function(){var v=document.querySelector('video');var o=document.querySelector('ytm-slim-owner-renderer');return JSON.stringify({t:v?v.currentTime:0,p:v?v.paused:true,e:v?v.ended:false,ti:document.title,ch:((o&&o.innerText)||'').split('\n')[0]});})()"""
+
+private const val ZT_PAUSE_FEED = "(function(){document.querySelectorAll('video').forEach(function(v){try{v.pause();if(!v.__z){v.__z=1;v.removeAttribute('src');v.load();}}catch(e){}});})()"
 
 private fun ztMiniUrl(id: String, start: Int): String = "https://m.youtube.com/watch?v=" + id + "&t=" + start + "s"
 
@@ -167,6 +176,7 @@ function tick(){
   if(!started){
    if(v.paused&&v.readyState>=2){var r=v.play();if(r&&r.catch)r.catch(function(){});}
    if(!v.paused)started=true;}
+  try{ZtMiniBridge.onInfo(v.videoWidth+'x'+v.videoHeight+' rs'+v.readyState);}catch(e){}
   var s=v.paused?2:1;
   if(s!==last){last=s;try{ZtMiniBridge.onState(s);}catch(e){}}
  }catch(e){}
@@ -188,6 +198,9 @@ private fun ZtMiniTracker(webView: WebView?) {
             val w = webView
             if (w != null) {
                 val id = ztWatchId(w.url ?: "")
+                if (id == null && ZtMini.videoId.value != null) {
+                    w.evaluateJavascript(ZT_PAUSE_FEED, null)
+                }
                 if (id != null) {
                     if (ZtMini.videoId.value != null && android.os.SystemClock.uptimeMillis() - ZtMini.openedAt > 1500) ZtMini.close()
                     lastId = id
@@ -411,7 +424,7 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
                             maxLines = 1, overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            if (!ZtMini.ready.value) "Memuat video..." else ZtMini.channel.value.ifEmpty { "Mini player" },
+                            if (!ZtMini.ready.value) "Memuat video..." else (ZtMini.channel.value.ifEmpty { "Mini player" } + "  " + ZtMini.info.value),
                             color = Color.White.copy(alpha = 0.62f), fontSize = 11.sp,
                             maxLines = 1, overflow = TextOverflow.Ellipsis,
                         )
