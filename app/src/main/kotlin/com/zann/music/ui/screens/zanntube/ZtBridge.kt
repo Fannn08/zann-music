@@ -24,12 +24,6 @@ class ZtBridge(private val ctx: Context, private val web: WebView) {
     }
 
     @JavascriptInterface
-    fun miniStyle(style: String) {
-        val ok = style in setOf("default", "transparent", "blur", "gradient", "black")
-        if (ok) main.post { ZtMini.style.value = style }
-    }
-
-    @JavascriptInterface
     fun download(id: String, title: String, audioOnly: Boolean) {
         if (!idRe.matches(id)) return
         ZtDownload.start(ctx.applicationContext, id, title, audioOnly)

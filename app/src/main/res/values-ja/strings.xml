@@ -199,6 +199,8 @@
     <string name="library_artists_empty_title">アーティストはまだいません</string>
     <string name="library_artists_empty_body">お気に入り、プレイリスト、アルバムのアーティストがここに表示されます。</string>
     <string name="playlist_rename">名前を変更</string>
+    <string name="playlist_reorder">曲の順番を変更</string>
+    <string name="playlist_reorder_done">完了</string>
     <string name="playlist_delete">プレイリストを削除</string>
     <string name="playlist_delete_confirm">“%1$s”を削除します。曲はお気に入りに残ります。</string>
     <string name="playlist_empty_title">このプレイリストは空です</string>

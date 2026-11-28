@@ -243,6 +243,7 @@ fun ZannTubeScreen(onBack: () -> Unit) {
             ) {
                 listOf(
                     "Beranda" to "https://m.youtube.com/?hl=id",
+                    "Shorts" to "https://m.youtube.com/shorts",
                     "Langganan" to "https://m.youtube.com/feed/subscriptions?hl=id",
                     "Anda" to "https://m.youtube.com/feed/you?hl=id",
                     "Chat" to "zt://chat",

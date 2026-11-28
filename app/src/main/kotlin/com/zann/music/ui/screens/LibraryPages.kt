@@ -18,6 +18,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.zIndex
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -177,6 +189,70 @@ fun UserPlaylistScreen(
     var deleting by remember { mutableStateOf(false) }
     val bottomInset = LocalBottomBarInset.current
 
+    // Reorder mode: the list is edited on a local copy and each finished drag is persisted via LibraryManager.
+    var reordering by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
+    val working = remember(id) { playlist?.songs.orEmpty().toMutableStateList() }
+    var draggingKey by remember { mutableStateOf<String?>(null) }
+    var dragFrom by remember { mutableIntStateOf(-1) }
+    var dragOffset by remember { mutableFloatStateOf(0f) }
+    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val edgePx = with(androidx.compose.ui.platform.LocalDensity.current) { 110.dp.toPx() }
+    LaunchedEffect(playlist?.songs) {
+        if (draggingKey == null) {
+            working.clear()
+            working.addAll(playlist?.songs.orEmpty())
+        }
+    }
+
+    // Swaps the dragged row with whichever row its centre is now over (index 0 is the header item).
+    fun swapIfNeeded(key: String) {
+        val info = listState.layoutInfo.visibleItemsInfo
+        val cur = info.firstOrNull { it.key == key } ?: return
+        val center = cur.offset + cur.size / 2f + dragOffset
+        val target = info.firstOrNull { it.index > 0 && it.key != key && center >= it.offset && center <= it.offset + it.size } ?: return
+        val from = working.indexOfFirst { it.id == key }
+        val to = target.index - 1
+        if (from < 0 || to !in working.indices || from == to) return
+        working.add(to, working.removeAt(from))
+        dragOffset -= (target.offset - cur.offset)
+    }
+
+    fun finishDrag() {
+        val key = draggingKey
+        if (key != null) {
+            val to = working.indexOfFirst { it.id == key }
+            if (dragFrom >= 0 && to >= 0 && to != dragFrom && playlist != null) {
+                LibraryManager.moveInPlaylist(playlist.id, dragFrom, to)
+            }
+        }
+        draggingKey = null
+        dragFrom = -1
+        dragOffset = 0f
+    }
+
+    // Scroll while a row is held near the top/bottom edge, so it can travel across a long playlist.
+    LaunchedEffect(draggingKey) {
+        val key = draggingKey ?: return@LaunchedEffect
+        while (true) {
+            val layout = listState.layoutInfo
+            val cur = layout.visibleItemsInfo.firstOrNull { it.key == key }
+            if (cur != null) {
+                val center = cur.offset + cur.size / 2f + dragOffset
+                val step = when {
+                    center < layout.viewportStartOffset + edgePx -> -24f
+                    center > layout.viewportEndOffset - edgePx -> 24f
+                    else -> 0f
+                }
+                if (step != 0f) {
+                    dragOffset += listState.scrollBy(step)
+                    swapIfNeeded(key)
+                }
+            }
+            kotlinx.coroutines.delay(16)
+        }
+    }
+
     if (playlist == null) {
         Box(Modifier.fillMaxSize().statusBarsPadding().padding(14.dp)) {
             GlassIconButton(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back), onBack, size = 44.dp, iconSize = 20.dp)
@@ -189,6 +265,7 @@ fun UserPlaylistScreen(
 
     LazyColumn(
         Modifier.fillMaxSize(),
+        state = listState,
         contentPadding = PaddingValues(start = Spacing.ScreenH, end = Spacing.ScreenH, bottom = 28.dp + bottomInset),
     ) {
         item(key = "top") {
@@ -196,7 +273,9 @@ fun UserPlaylistScreen(
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     GlassIconButton(Icons.Rounded.ArrowBackIosNew, stringResource(R.string.back), onBack, size = 44.dp, iconSize = 20.dp)
                     Spacer(Modifier.weight(1f))
-                    Box {
+                    if (reordering) {
+                        GlassButton(stringResource(R.string.playlist_reorder_done), { reordering = false }, icon = Icons.Default.Check)
+                    } else Box {
                         GlassIconButton(Icons.Default.MoreHoriz, stringResource(R.string.more), { menu = true }, size = 44.dp, iconSize = 22.dp)
                         GlassMenu(
                             expanded = menu,
@@ -206,6 +285,7 @@ fun UserPlaylistScreen(
                                     com.zann.music.data.download.Downloads.downloadAll(context, songs)
                                     android.widget.Toast.makeText(context, downloadAllMsg, android.widget.Toast.LENGTH_SHORT).show()
                                 } else null,
+                                if (songs.size > 1) MenuAction(stringResource(R.string.playlist_reorder), Icons.Default.SwapVert) { reordering = true } else null,
                                 MenuAction(stringResource(R.string.playlist_rename), Icons.Default.Edit) { renaming = true },
                                 MenuAction(stringResource(R.string.playlist_delete), Icons.Default.Delete, accent = true) { deleting = true },
                             ),
@@ -236,6 +316,43 @@ fun UserPlaylistScreen(
                     body = stringResource(R.string.playlist_empty_body),
                     actionLabel = stringResource(R.string.home_empty_action),
                     onAction = onOpenSearch,
+                )
+            }
+        } else if (reordering) {
+            itemsIndexed(working, key = { _, it -> it.id }) { i, item ->
+                val dragging = draggingKey == item.id
+                ItemRow(
+                    item = item,
+                    onClick = {},
+                    showSeparator = i < working.lastIndex && !dragging,
+                    playlistId = playlist.id,
+                    modifier = if (dragging) Modifier.zIndex(1f).graphicsLayer { translationY = dragOffset } else Modifier.animateItem(),
+                    trailing = {
+                        Box(
+                            Modifier
+                                .size(48.dp)
+                                .pointerInput(item.id) {
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                            dragFrom = working.indexOfFirst { it.id == item.id }
+                                            dragOffset = 0f
+                                            draggingKey = item.id
+                                        },
+                                        onDragEnd = { finishDrag() },
+                                        onDragCancel = { finishDrag() },
+                                        onDrag = { change, amount ->
+                                            change.consume()
+                                            dragOffset += amount.y
+                                            swapIfNeeded(item.id)
+                                        },
+                                    )
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(Icons.Default.DragHandle, stringResource(R.string.playlist_reorder), tint = if (dragging) VyoraAccent else VyoraTextMuted, modifier = Modifier.size(24.dp))
+                        }
+                    },
                 )
             }
         } else {

@@ -72,6 +72,13 @@ object YouTubeMusicApi {
     suspend fun removeFromPlaylist(playlistId: String, videoId: String, setVideoId: String) =
         editPlaylist(playlistId, JSONObject().put("action", "ACTION_REMOVE_VIDEO").put("removedVideoId", videoId).put("setVideoId", setVideoId))
 
+    /** Moves a track before [successorSetVideoId]; a null successor moves it to the end of the playlist. */
+    suspend fun moveInPlaylist(playlistId: String, setVideoId: String, successorSetVideoId: String?) {
+        val action = JSONObject().put("action", "ACTION_MOVE_VIDEO_BEFORE").put("setVideoId", setVideoId)
+        if (successorSetVideoId != null) action.put("movedSetVideoIdSuccessor", successorSetVideoId)
+        editPlaylist(playlistId, action)
+    }
+
     private suspend fun editPlaylist(playlistId: String, action: JSONObject) {
         post("browse/edit_playlist", JSONObject().put("playlistId", playlistId).put("actions", JSONArray().put(action)))
     }

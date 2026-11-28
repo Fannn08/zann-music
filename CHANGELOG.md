@@ -1,4 +1,8 @@
 # Changelog
+## 1.9.33
+- Playlist: lagu sekarang bisa dipindah urutannya. Buka menu ⋯ lalu pilih "Atur urutan lagu", tahan dan geser ikon ☰ di kanan lagu ke atas atau ke bawah, lalu tekan "Selesai"
+- Urutan baru tersimpan, dan ikut disinkronkan ke playlist YouTube Music kalau akun terhubung
+
 ## 1.9.32
 - Mini player dipindah ke jendela utama supaya videonya tidak hitam lagi
 - Tulisan "Memuat video..." tampil sampai video siap

@@ -79,6 +79,8 @@ fun ItemRow(
     badge: (@Composable () -> Unit)? = null,
     /** Prefix songs with "Song · " / "Music Video · ", as mixed result lists do. */
     showKind: Boolean = false,
+    /** Replaces the "more" button (and disables the long-press menu), e.g. with a drag handle while reordering. */
+    trailing: (@Composable () -> Unit)? = null,
 ) {
     val current by PlayerManager.currentItem.collectAsState()
     val isSong = item.isSong
@@ -107,7 +109,7 @@ fun ItemRow(
                 interactionSource = source,
                 indication = null,
                 role = Role.Button,
-                onLongClick = if (isSong) ({ haptics.performHapticFeedback(HapticFeedbackType.LongPress); menu = true }) else null,
+                onLongClick = if (isSong && trailing == null) ({ haptics.performHapticFeedback(HapticFeedbackType.LongPress); menu = true }) else null,
                 onClick = onClick,
             )
     ) {
@@ -199,7 +201,9 @@ fun ItemRow(
                     }
                 }
             }
-            if (isSong) {
+            if (trailing != null) {
+                trailing()
+            } else if (isSong) {
                 Box(contentAlignment = Alignment.Center) {
                     Box(
                         Modifier

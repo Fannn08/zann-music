@@ -164,6 +164,9 @@ interface LibraryDao {
     @Query("UPDATE playlist_songs SET set_video_id = :setVideoId WHERE playlist_id = :playlistId AND item_id = :itemId")
     suspend fun setPlaylistSongHandle(playlistId: String, itemId: String, setVideoId: String?)
 
+    @Query("UPDATE playlist_songs SET position = :position WHERE playlist_id = :playlistId AND item_id = :itemId")
+    suspend fun setPlaylistSongPosition(playlistId: String, itemId: String, position: Int)
+
     @Query("DELETE FROM playlist_songs WHERE playlist_id = :playlistId AND item_id = :itemId")
     suspend fun deletePlaylistSong(playlistId: String, itemId: String)
 

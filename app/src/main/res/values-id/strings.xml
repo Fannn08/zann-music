@@ -199,6 +199,8 @@
     <string name="library_artists_empty_title">Belum ada artis</string>
     <string name="library_artists_empty_body">Artis dari lagu favorit, playlist, dan album Anda akan muncul di sini.</string>
     <string name="playlist_rename">Ganti Nama</string>
+    <string name="playlist_reorder">Atur urutan lagu</string>
+    <string name="playlist_reorder_done">Selesai</string>
     <string name="playlist_delete">Hapus Playlist</string>
     <string name="playlist_delete_confirm">“%1$s” akan dihapus. Lagu-lagunya tetap ada di favorit Anda.</string>
     <string name="playlist_empty_title">Playlist ini masih kosong</string>

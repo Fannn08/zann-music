@@ -201,6 +201,16 @@ object SyncEngine {
                 } ?: return
                 YouTubeMusicApi.removeFromPlaylist(remote, videoId, handle)
             }
+            SyncKind.PLAYLIST_MOVE -> {
+                val remote = dao.playlist(action.target)?.remoteId ?: return
+                val extra = action.extra ?: return
+                val videoId = extra.substringBefore('|')
+                val successorId = extra.substringAfter('|', "").ifBlank { null }
+                val songs = YouTubeMusicApi.playlist(remote).songs.items
+                val handle = songs.firstOrNull { it.item.id == videoId }?.setVideoId ?: return
+                val successor = successorId?.let { id -> songs.firstOrNull { it.item.id == id }?.setVideoId }
+                YouTubeMusicApi.moveInPlaylist(remote, handle, successor)
+            }
         }
     }
 

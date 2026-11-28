@@ -201,6 +201,8 @@
     <string name="library_artists_empty_title">Aún no hay artistas</string>
     <string name="library_artists_empty_body">Aquí aparecen los artistas de tus favoritos, playlists y álbumes.</string>
     <string name="playlist_rename">Renombrar</string>
+    <string name="playlist_reorder">Reordenar canciones</string>
+    <string name="playlist_reorder_done">Listo</string>
     <string name="playlist_delete">Eliminar playlist</string>
     <string name="playlist_delete_confirm">Se eliminará “%1$s”. Las canciones siguen en tus favoritos.</string>
     <string name="playlist_empty_title">Esta playlist está vacía</string>

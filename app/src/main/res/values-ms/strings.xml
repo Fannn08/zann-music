@@ -199,6 +199,8 @@
     <string name="library_artists_empty_title">Belum ada artis</string>
     <string name="library_artists_empty_body">Artis daripada kegemaran, senarai main dan album anda dipaparkan di sini.</string>
     <string name="playlist_rename">Namakan Semula</string>
+    <string name="playlist_reorder">Susun semula lagu</string>
+    <string name="playlist_reorder_done">Selesai</string>
     <string name="playlist_delete">Padam Senarai Main</string>
     <string name="playlist_delete_confirm">“%1$s” akan dipadam. Lagu-lagunya kekal dalam kegemaran anda.</string>
     <string name="playlist_empty_title">Senarai main ini kosong</string>

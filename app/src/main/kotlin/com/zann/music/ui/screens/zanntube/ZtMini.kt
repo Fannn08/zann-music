@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,19 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -62,8 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import coil.compose.AsyncImage
-import com.zann.music.ui.design.rememberArtworkTint
 import kotlinx.coroutines.delay
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -77,16 +68,10 @@ object ZtMini {
     val playing = mutableStateOf(true)
     val failed = mutableStateOf(false)
     val ready = mutableStateOf(false)
-    /** Gaya latar kapsul: default, transparent, blur, gradient, black. Dikirim dari halaman Pengaturan ZannTube. */
-    val style = mutableStateOf("default")
-    val pos = mutableStateOf(0f)
-    val dur = mutableStateOf(0f)
-    val info = mutableStateOf("")
     @Volatile var openedAt = 0L
 
     fun open(id: String, t: Int, ti: String, ch: String) {
         if (videoId.value == id) return
-        info.value = ""
         openedAt = android.os.SystemClock.uptimeMillis()
         start.value = t
         title.value = ti
@@ -94,8 +79,6 @@ object ZtMini {
         playing.value = true
         failed.value = false
         ready.value = false
-        pos.value = 0f
-        dur.value = 0f
         videoId.value = id
     }
 
@@ -112,11 +95,6 @@ class ZtMiniBridge {
     }
 
     @JavascriptInterface
-    fun onInfo(s: String) {
-        ZtMini.info.value = s
-    }
-
-    @JavascriptInterface
     fun onError(c: Int) {
         ZtMini.failed.value = true
     }
@@ -128,8 +106,6 @@ private fun ztWatchId(url: String): String? {
 }
 
 private const val ZT_PROBE = """(function(){var v=document.querySelector('video');var o=document.querySelector('ytm-slim-owner-renderer');return JSON.stringify({t:v?v.currentTime:0,p:v?v.paused:true,e:v?v.ended:false,ti:document.title,ch:((o&&o.innerText)||'').split('\n')[0]});})()"""
-
-private const val ZT_PAUSE_FEED = "(function(){document.querySelectorAll('video').forEach(function(v){try{v.pause();if(!v.__z){v.__z=1;v.removeAttribute('src');v.load();}}catch(e){}});})()"
 
 private fun ztMiniUrl(id: String, start: Int): String = "https://m.youtube.com/watch?v=" + id + "&t=" + start + "s"
 
@@ -163,7 +139,6 @@ window.ztToggle=function(){
  var v=vd();if(!v)return;
  if(v.paused){var r=v.play();if(r&&r.catch)r.catch(function(){});}else v.pause();};
 window.ztTime=function(){var v=vd();return v?v.currentTime:0;};
-window.ztDur=function(){var v=vd();return(v&&isFinite(v.duration))?v.duration:0;};
 var started=false,last=0,fixedEl=null;
 function tick(){
  try{
@@ -176,7 +151,6 @@ function tick(){
   if(!started){
    if(v.paused&&v.readyState>=2){var r=v.play();if(r&&r.catch)r.catch(function(){});}
    if(!v.paused)started=true;}
-  try{ZtMiniBridge.onInfo(v.videoWidth+'x'+v.videoHeight+' rs'+v.readyState);}catch(e){}
   var s=v.paused?2:1;
   if(s!==last){last=s;try{ZtMiniBridge.onState(s);}catch(e){}}
  }catch(e){}
@@ -198,9 +172,6 @@ private fun ZtMiniTracker(webView: WebView?) {
             val w = webView
             if (w != null) {
                 val id = ztWatchId(w.url ?: "")
-                if (id == null && ZtMini.videoId.value != null) {
-                    w.evaluateJavascript(ZT_PAUSE_FEED, null)
-                }
                 if (id != null) {
                     if (ZtMini.videoId.value != null && android.os.SystemClock.uptimeMillis() - ZtMini.openedAt > 1500) ZtMini.close()
                     lastId = id
@@ -263,47 +234,19 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
         }
     }
 
-    LaunchedEffect(id) {
-        while (true) {
-            holder[0]?.evaluateJavascript("(function(){return ztTime()+'/'+ztDur();})()") { r ->
-                try {
-                    val parts = (JSONTokener(r).nextValue() as? String)?.split("/")
-                    if (parts != null && parts.size == 2) {
-                        ZtMini.pos.value = parts[0].toFloatOrNull() ?: 0f
-                        ZtMini.dur.value = parts[1].toFloatOrNull() ?: 0f
-                    }
-                } catch (e: Exception) {
-                }
-            }
-            delay(500)
-        }
-    }
-
     run {
-        val cardShape = RoundedCornerShape(22.dp)
-        val pill = RoundedCornerShape(32.dp)
-        val style = ZtMini.style.value
-        val thumb = "https://i.ytimg.com/vi/$id/mqdefault.jpg"
-        val tint by rememberArtworkTint(if (style == "gradient") thumb else null)
-        val barColor = when (style) {
-            "default" -> Color(0xFF1C1B1F)
-            "transparent" -> Color.Black.copy(alpha = 0.35f)
-            else -> Color.Black
-        }
+        val shape = RoundedCornerShape(24.dp)
         Column(
             Modifier
-                .align(Alignment.BottomEnd)
+                .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(end = 12.dp)
                 .offset { IntOffset(ox.roundToInt(), oy.roundToInt()) }
-                .width(236.dp),
+                .width(300.dp)
+                .background(Color(0xFF1C1B1F), shape)
+                .border(1.dp, Color(0x40FFFFFF), shape)
+                .padding(6.dp),
         ) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
-                    .background(Color.Black),
-            ) {
+            Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Color.Black)) {
                 AndroidView(
                     modifier = Modifier.fillMaxSize(),
                     factory = { ctx ->
@@ -350,86 +293,43 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
                             }
                         },
                 )
-                ZtMiniBtn(Modifier.align(Alignment.TopStart).padding(6.dp), { expand() }) { zmExpand(Color.White) }
-                ZtMiniBtn(Modifier.align(Alignment.TopEnd).padding(6.dp), { ZtMini.close() }) { zmClose(Color.White) }
+                ZtMiniBtn(Modifier.align(Alignment.TopStart).padding(8.dp), { expand() }) { zmExpand(Color.White) }
+                ZtMiniBtn(Modifier.align(Alignment.TopEnd).padding(8.dp), { ZtMini.close() }) { zmClose(Color.White) }
             }
-
-            // Kapsul ala Rythim: tombol play dengan cincin progres, judul + kanal, lalu perbesar dan tutup.
-            Box(
+            Row(
                 Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(bottomStart = 22.dp, bottomEnd = 22.dp))
-                    .background(barColor)
                     .pointerInput(Unit) {
                         detectDragGestures { change, drag ->
                             change.consume()
                             ox += drag.x
                             oy += drag.y
                         }
-                    },
+                    }
+                    .padding(start = 16.dp, end = 10.dp, top = 10.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (style == "blur" && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                    AsyncImage(
-                        model = thumb,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize().blur(60.dp),
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        ZtMini.title.value.ifEmpty { "ZannTube" },
+                        color = Color(0xFFE6E0E9), fontSize = 16.sp, fontWeight = FontWeight.Medium,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
-                    Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)))
-                } else if (style == "gradient") {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(Brush.horizontalGradient(listOf(tint, tint.copy(alpha = 0.55f))))
-                            .background(Color.Black.copy(alpha = 0.15f)),
+                    Text(
+                        if (!ZtMini.ready.value) "Memuat video..." else ZtMini.channel.value.ifEmpty { "Mini player" },
+                        color = Color(0xFFCAC4D0), fontSize = 13.sp,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Row(
-                    Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
+                    Modifier
+                        .size(52.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF4A4458))
+                        .clickable { holder[0]?.evaluateJavascript("ztToggle()", null) },
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Box(
-                        Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .clickable { holder[0]?.evaluateJavascript("ztToggle()", null) }
-                            .drawWithContent {
-                                drawContent()
-                                val stroke = 2.5.dp.toPx()
-                                val inset = stroke / 2f
-                                val arc = Size(size.width - stroke, size.height - stroke)
-                                val d = ZtMini.dur.value
-                                val progress = if (d > 0f) (ZtMini.pos.value / d).coerceIn(0f, 1f) else 0f
-                                drawArc(
-                                    color = Color(0x33FFFFFF), startAngle = 0f, sweepAngle = 360f, useCenter = false,
-                                    topLeft = Offset(inset, inset), size = arc, style = Stroke(width = stroke),
-                                )
-                                drawArc(
-                                    color = Color(0xFFD0BCFF), startAngle = -90f, sweepAngle = progress * 360f, useCenter = false,
-                                    topLeft = Offset(inset, inset), size = arc, style = Stroke(width = stroke, cap = StrokeCap.Round),
-                                )
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Canvas(Modifier.size(20.dp)) { if (playing) zmPause(Color.White) else zmPlay(Color.White) }
-                    }
-
-                    Spacer(Modifier.width(12.dp))
-
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            ZtMini.title.value.ifEmpty { "ZannTube" },
-                            color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            if (!ZtMini.ready.value) "Memuat video..." else (ZtMini.channel.value.ifEmpty { "Mini player" } + "  " + ZtMini.info.value),
-                            color = Color.White.copy(alpha = 0.62f), fontSize = 11.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-
+                    Canvas(Modifier.size(22.dp)) { if (playing) zmPause(Color(0xFFD0BCFF)) else zmPlay(Color(0xFFD0BCFF)) }
                 }
             }
         }
@@ -440,13 +340,13 @@ fun BoxScope.ZtMiniPlayer(webView: WebView?) {
 private fun ZtMiniBtn(modifier: Modifier, onClick: () -> Unit, draw: DrawScope.() -> Unit) {
     Box(
         modifier
-            .size(30.dp)
+            .size(38.dp)
             .clip(CircleShape)
             .background(Color(0x99303033))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Canvas(Modifier.size(15.dp)) { draw() }
+        Canvas(Modifier.size(18.dp)) { draw() }
     }
 }
 

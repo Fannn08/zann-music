@@ -238,7 +238,7 @@ object LibraryManager {
             database.withTransaction {
                 val remoteId = dao.playlist(id)?.remoteId
                 dao.deletePlaylist(id)
-                database.sync().deleteFor(id, listOf(SyncKind.PLAYLIST_ADD, SyncKind.PLAYLIST_REMOVE, SyncKind.PLAYLIST_RENAME))
+                database.sync().deleteFor(id, listOf(SyncKind.PLAYLIST_ADD, SyncKind.PLAYLIST_REMOVE, SyncKind.PLAYLIST_RENAME, SyncKind.PLAYLIST_MOVE))
                 if (remoteId != null) queue(database, SyncKind.PLAYLIST_DELETE, remoteId)
                 dao.deleteOrphanItems()
             }
@@ -260,6 +260,23 @@ object LibraryManager {
             val handle = dao.playlistSong(id, songId)?.setVideoId
             dao.deletePlaylistSong(id, songId)
             queue(database, SyncKind.PLAYLIST_REMOVE, id, extra = removeExtra(songId, handle))
+        }
+    }
+
+    /** Moves the song at [from] to position [to] (both indexes into the playlist) and persists the new order. */
+    fun moveInPlaylist(id: String, from: Int, to: Int) {
+        if (from == to) return
+        write { database ->
+            val dao = database.library()
+            database.withTransaction {
+                val rows = dao.playlistSongs(id).toMutableList()
+                if (from !in rows.indices || to !in rows.indices) return@withTransaction
+                val moved = rows.removeAt(from)
+                rows.add(to, moved)
+                rows.forEachIndexed { i, row -> if (row.position != i || row === moved) dao.setPlaylistSongPosition(id, row.itemId, i) }
+                val successor = rows.getOrNull(to + 1)?.itemId
+                queue(database, SyncKind.PLAYLIST_MOVE, id, extra = moved.itemId + "|" + successor.orEmpty())
+            }
         }
     }
 

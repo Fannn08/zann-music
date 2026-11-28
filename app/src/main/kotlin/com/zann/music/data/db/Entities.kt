@@ -155,6 +155,7 @@ object SyncKind {
     const val PLAYLIST_DELETE = "pl_delete"
     const val PLAYLIST_ADD = "pl_add"
     const val PLAYLIST_REMOVE = "pl_remove"
+    const val PLAYLIST_MOVE = "pl_move"
 }
 
 data class PlaylistSongRow(
